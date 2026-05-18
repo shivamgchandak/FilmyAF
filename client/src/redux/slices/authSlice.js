@@ -6,7 +6,7 @@ const TOKEN_KEY = 'filmyaf_token';
 const initialState = {
   user: null,
   token: localStorage.getItem(TOKEN_KEY),
-  status: 'idle', // idle | loading | success | error
+  status: 'idle',
   error: null,
 };
 
@@ -83,7 +83,6 @@ const slice = createSlice({
       if (a.payload?.user) s.user = a.payload.user;
     });
     b.addCase(loadUserThunk.rejected, (s) => {
-      // token must have been invalid
       s.user = null;
       s.token = null;
       localStorage.removeItem(TOKEN_KEY);

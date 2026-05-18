@@ -7,7 +7,6 @@ const themedMessages = {
 };
 
 export const errorMiddleware = (err, req, res, _next) => {
-  // Mongoose duplicate key
   if (err && err.code === 11000) {
     const field = Object.keys(err.keyValue || {})[0] || 'field';
     return res.status(409).json({
@@ -16,7 +15,6 @@ export const errorMiddleware = (err, req, res, _next) => {
     });
   }
 
-  // Mongoose validation
   if (err instanceof mongoose.Error.ValidationError) {
     const details = {};
     for (const [k, v] of Object.entries(err.errors)) details[k] = v.message;
@@ -33,7 +31,6 @@ export const errorMiddleware = (err, req, res, _next) => {
     });
   }
 
-  // Our ApiError
   if (err instanceof ApiError) {
     return res.status(err.status).json({
       success: false,
@@ -41,7 +38,6 @@ export const errorMiddleware = (err, req, res, _next) => {
     });
   }
 
-  // Unknown
   console.error('[error.middleware]', err);
   const status = err.status || 500;
   return res.status(status).json({

@@ -3,11 +3,6 @@ import toast from 'react-hot-toast';
 import RemixModal from '../community/RemixModal.jsx';
 import { generateService } from '../../services/generateService.js';
 
-/**
- * Owner-only. Opens the RemixModal pre-filled with the script's current
- * situation + mood. On submit, calls /generate/edit-script which re-runs
- * the full LLM pipeline and bumps lastEditedAt.
- */
 export default function EditScriptButton({ script, onUpdated }) {
   const [open, setOpen] = useState(false);
 

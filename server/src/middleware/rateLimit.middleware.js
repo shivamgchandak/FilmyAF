@@ -1,8 +1,5 @@
 import rateLimit from 'express-rate-limit';
 
-/**
- * Generation endpoint — stricter for anon (by IP), looser for logged-in users.
- */
 export const generateLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: (req) => (req.user ? 30 : 5),

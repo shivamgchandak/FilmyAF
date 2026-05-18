@@ -5,11 +5,6 @@ import RemixModal from './RemixModal.jsx';
 import { scriptService } from '../../services/scriptService.js';
 import { useAuth } from '../../hooks/useAuth.js';
 
-/**
- * Opens a RemixModal pre-filled with the source script's situation + mood.
- * On submit, calls POST /scripts/:id/clone with the (possibly edited) prompt.
- * Server decides whether to plain-clone or re-run the LLM pipeline.
- */
 export default function CloneButton({ script }) {
   const [open, setOpen] = useState(false);
   const { isAuthenticated } = useAuth();

@@ -12,13 +12,6 @@ import {
   regenerateFromPrompt,
 } from '../services/scripts.service.js';
 
-/**
- * POST /api/generate/script
- * Body: { situation, mood, save? }
- * - Always runs the pipeline
- * - If save=true AND user is logged in, persists to DB and returns the saved doc
- * - Otherwise returns the generated script without saving (anon flow)
- */
 export const generateScript = asyncHandler(async (req, res) => {
   const { situation, mood = 'masala', save = false } = req.body;
   const generated = await runFullPipeline({ situation, mood });
@@ -32,7 +25,6 @@ export const generateScript = asyncHandler(async (req, res) => {
     return res.status(201).json({ success: true, data: { script: doc, saved: true } });
   }
 
-  // Anon / preview — return without persisting
   res.json({ success: true, data: { script: generated, saved: false } });
 });
 
@@ -42,7 +34,6 @@ export const regenerateScene = asyncHandler(async (req, res) => {
   assertOwner(script, req.user._id);
 
   const newScene = await regenerateOneScene({ script, sceneIndex, instruction });
-  // Replace by index
   const idx = script.scenes.findIndex((s) => s.index === sceneIndex);
   if (idx === -1) {
     script.scenes.push(newScene);
@@ -71,7 +62,6 @@ export const regenerateCharacters = asyncHandler(async (req, res) => {
   assertOwner(script, req.user._id);
 
   const newCast = await regenerateAllCharacters({ script });
-  // Map old names → new names by position so existing dialogue stays consistent
   const renameMap = {};
   script.characters.forEach((c, i) => {
     if (newCast[i]) renameMap[c.name] = newCast[i].name;
@@ -90,13 +80,7 @@ export const regenerateCharacters = asyncHandler(async (req, res) => {
   res.json({ success: true, data: { script } });
 });
 
-/**
- * POST /api/generate/edit-script
- * Body: { scriptId, situation, mood }
- * Owner-only. Re-runs the full Director → Casting → Screenwriter pipeline
- * with the new situation/mood and replaces title, tagline, characters, scenes.
- * Bumps updatedAt so the UI can show "Last updated on …".
- */
+
 export const editScript = asyncHandler(async (req, res) => {
   const { scriptId, situation, mood } = req.body;
   const script = await findByIdOrFail(scriptId);

@@ -10,7 +10,6 @@ export default function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // Revalidate any persisted token on mount
     dispatch(loadUserThunk());
   }, [dispatch]);
 

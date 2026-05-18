@@ -24,7 +24,6 @@ export default function SignupForm() {
 
   const onChange = (e) => {
     const { name, value } = e.target;
-    // Auto-lowercase username so what the user sees matches what gets stored
     const next = name === 'username' ? value.toLowerCase() : value;
     setForm((f) => ({ ...f, [name]: next }));
   };
@@ -62,7 +61,7 @@ export default function SignupForm() {
         value={form.username}
         onChange={onChange}
         error={errors.username}
-        placeholder="e.g. shivam.chandak"
+        placeholder="e.g. gabbar07"
         autoComplete="username"
       />
       <Input label="Email" type="email" name="email" value={form.email} onChange={onChange} error={errors.email} autoComplete="email" />

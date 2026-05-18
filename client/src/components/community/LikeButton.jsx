@@ -35,7 +35,6 @@ export default function LikeButton({ scriptId, initialCount = 0 }) {
     }
     if (busy) return;
     setBusy(true);
-    // optimistic
     setLiked((v) => !v);
     setCount((c) => c + (liked ? -1 : 1));
     try {

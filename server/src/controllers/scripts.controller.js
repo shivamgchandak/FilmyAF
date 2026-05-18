@@ -19,8 +19,6 @@ export const getBySlug = asyncHandler(async (req, res) => {
   if (!script.isPublic && (!req.user || !script.userId?.equals(req.user._id))) {
     throw ApiError.forbidden('This script is private');
   }
-  // Throttle view-count inflation: only count if no fresh view from same IP this session
-  // (simple in-memory throttle would need a cache; for now we just increment)
   script.viewCount += 1;
   await script.save();
 
@@ -70,12 +68,6 @@ export const deleteOne = asyncHandler(async (req, res) => {
   res.json({ success: true, data: { deleted: true } });
 });
 
-/**
- * POST /api/scripts/:id/clone
- * Body (all optional): { situation, mood }
- *   - if provided + different from original → re-runs LLM pipeline
- *   - else → plain copy
- */
 export const cloneOne = asyncHandler(async (req, res) => {
   const original = await findByIdOrFail(req.params.id);
   if (!original.isPublic) throw ApiError.forbidden('Cannot clone a private script');

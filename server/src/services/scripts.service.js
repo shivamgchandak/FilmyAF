@@ -22,10 +22,6 @@ export const assertOwner = (script, userId) => {
   }
 };
 
-/**
- * Clone a script. If the cloner provided a custom situation or a different mood,
- * we re-run the full LLM pipeline so the new script reflects the remix.
- */
 export const cloneScript = async (original, clonerUserId, { situation, mood } = {}) => {
   const origSituation = (original.situation || '').trim();
   const newSituation = (situation || '').trim();
@@ -71,11 +67,6 @@ export const cloneScript = async (original, clonerUserId, { situation, mood } = 
   return cloned;
 };
 
-/**
- * Edit an existing script's prompt + mood and re-run the full LLM pipeline.
- * Replaces title, tagline, characters and scenes. Owner-only — call site
- * is responsible for assertOwner.
- */
 export const regenerateFromPrompt = async (script, { situation, mood }) => {
   const regenerated = await runFullPipeline({
     situation,

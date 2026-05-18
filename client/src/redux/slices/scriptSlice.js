@@ -4,10 +4,10 @@ import { scriptService } from '../../services/scriptService.js';
 
 const initialState = {
   currentScript: null,
-  generationStatus: 'idle', // idle | loading | success | error
+  generationStatus: 'idle', 
   error: null,
   regenStatus: {
-    scene: null,        // null or scene index being regenerated
+    scene: null,        
     title: false,
     characters: false,
   },

@@ -1,7 +1,3 @@
-/**
- * Validates required environment variables on boot.
- * Throws (and crashes the process) if anything required is missing.
- */
 const required = [
   'MONGODB_URI',
   'JWT_SECRET',
@@ -14,7 +10,6 @@ if (missing.length > 0) {
     `\n[env] Missing required environment variables: ${missing.join(', ')}\n` +
       `Copy server/.env.example to server/.env and fill them in.\n`
   );
-  // Don't process.exit here so tests can import; but log loud.
 }
 
 export const env = {

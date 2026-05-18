@@ -3,19 +3,6 @@ import Modal from '../shared/Modal.jsx';
 import Button from '../shared/Button.jsx';
 import MoodSelector from '../generator/MoodSelector.jsx';
 
-/**
- * Reused for two flows:
- *  - Clone & remix someone else's script (initial = original's situation/mood)
- *  - Owner edit their own script (initial = current situation/mood)
- *
- * Props:
- *   open, onClose
- *   title (modal heading)
- *   ctaLabel (submit button label)
- *   initialSituation, initialMood
- *   onSubmit({ situation, mood }) -> Promise
- *   helperText (small grey text under heading)
- */
 export default function RemixModal({
   open,
   onClose,
@@ -31,7 +18,6 @@ export default function RemixModal({
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
 
-  // Sync when modal opens with fresh initials
   const reset = () => {
     setSituation(initialSituation);
     setMood(initialMood);

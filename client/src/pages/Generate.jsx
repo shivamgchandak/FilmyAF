@@ -39,7 +39,6 @@ export default function Generate() {
       toast.error(result.payload?.message || 'Generation failed');
       return;
     }
-    // Push to local history regardless of auth (lightweight summary)
     dispatch(
       pushLocal({
         title: result.payload.script.title,
@@ -51,7 +50,6 @@ export default function Generate() {
       })
     );
     if (result.payload.saved && result.payload.script.shareSlug) {
-      // Already saved (logged-in path) — open the share page
       navigate(`/script/${result.payload.script.shareSlug}`);
     }
   };

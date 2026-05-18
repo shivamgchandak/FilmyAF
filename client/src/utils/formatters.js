@@ -31,9 +31,6 @@ export const timeAgo = (iso) => {
 export const fullName = (user) =>
   user ? [user.firstName, user.lastName].filter(Boolean).join(' ') : '';
 
-/**
- * Format a date as "17 May 2026, 04:30 PM IST" (Asia/Kolkata timezone).
- */
 export const formatIST = (iso) => {
   if (!iso) return '';
   const formatted = new Date(iso).toLocaleString('en-IN', {

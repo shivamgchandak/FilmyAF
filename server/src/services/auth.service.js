@@ -7,8 +7,6 @@ const tokenFor = (user) => signToken({ sub: user._id.toString() });
 export const signup = async ({ firstName, lastName, email, password, username }) => {
   const cleanUsername = (username || '').trim().toLowerCase();
 
-  // Pre-check uniqueness so we can return field-specific 409s.
-  // (The unique index on the User model is the ultimate guard against races.)
   const [existingEmail, existingUsername] = await Promise.all([
     User.findOne({ email }).select('_id'),
     User.findOne({ username: cleanUsername }).select('_id'),
@@ -34,7 +32,6 @@ export const signup = async ({ firstName, lastName, email, password, username })
     });
     return { user, token: tokenFor(user) };
   } catch (err) {
-    // Race: another signup grabbed the same email/username in between checks.
     if (err && err.code === 11000) {
       const field = Object.keys(err.keyValue || {})[0] || 'field';
       throw new ApiError(409, 'CONFLICT', `${field} already taken`, {

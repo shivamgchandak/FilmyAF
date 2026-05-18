@@ -4,12 +4,6 @@ import { ApiError } from '../../utils/ApiError.js';
 
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
-/**
- * Low-level Google Gemini wrapper (direct REST API).
- * - Tries GEMINI_MODEL first, falls back to GEMINI_FALLBACK_MODEL on 5xx/429/timeout.
- * - Uses Gemini's native JSON mode via `responseMimeType: 'application/json'`.
- * - Returns the raw text from the first candidate.
- */
 export const callLLM = async ({
   systemPrompt,
   userPrompt,
@@ -34,14 +28,9 @@ export const callLLM = async ({
     generationConfig: {
       temperature,
       maxOutputTokens: maxTokens,
-      // Disable Gemini 2.5 "thinking" tokens (ignored by 2.0 models).
-      // Thinking tokens count against maxOutputTokens but don't appear in
-      // the output, so leaving it on can truncate our JSON mid-stream.
       thinkingConfig: { thinkingBudget: 0 },
       ...(jsonMode ? { responseMimeType: 'application/json' } : {}),
     },
-    // Bollywood prompts mention "punches", "guns", "blood", etc. Loosen
-    // safety filters so the screenwriter doesn't get blocked mid-scene.
     safetySettings: [
       { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
       { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
@@ -90,18 +79,12 @@ export const callLLM = async ({
   }
 };
 
-/**
- * Parses JSON from an LLM response, tolerating markdown code fences
- * (` ```json ... ``` `) some models still emit even in JSON mode.
- */
 export const parseJSON = (raw) => {
   if (!raw) throw new Error('Empty LLM response');
   let txt = raw.trim();
-  // Strip markdown fences
   if (txt.startsWith('```')) {
     txt = txt.replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
   }
-  // Find first { and last }
   const first = txt.indexOf('{');
   const last = txt.lastIndexOf('}');
   if (first !== -1 && last !== -1 && last > first) {

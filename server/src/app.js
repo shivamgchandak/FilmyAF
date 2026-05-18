@@ -28,19 +28,16 @@ if (env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
 
-// Health check
 app.get('/api/health', (_req, res) => {
   res.json({ success: true, status: 'ok', service: 'filmyaf-api' });
 });
 
-// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/generate', generateRoutes);
-app.use('/api/scripts', scriptsRoutes); // also handles nested /:id/like, /:id/comments
-app.use('/api/comments', commentsRoutes); // /:id (delete)
+app.use('/api/scripts', scriptsRoutes); 
+app.use('/api/comments', commentsRoutes); 
 app.use('/api/feed', feedRoutes);
 
-// 404
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -48,5 +45,4 @@ app.use((req, res) => {
   });
 });
 
-// Global error handler (last)
 app.use(errorMiddleware);

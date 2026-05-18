@@ -74,8 +74,6 @@ const scriptSchema = new mongoose.Schema(
     commentCount: { type: Number, default: 0 },
     viewCount: { type: Number, default: 0 },
 
-    // Set explicitly whenever the owner edits the prompt/mood (full re-gen).
-    // Distinct from `updatedAt` which bumps on every viewCount increment.
     lastEditedAt: { type: Date, default: null },
   },
   { timestamps: true }

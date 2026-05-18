@@ -1,10 +1,6 @@
 import { validationResult } from 'express-validator';
 import { ApiError } from '../utils/ApiError.js';
 
-/**
- * Runs after express-validator chains. Converts errors into a
- * { field: message } map and throws a 400 ApiError.
- */
 export const validate = (req, _res, next) => {
   const result = validationResult(req);
   if (result.isEmpty()) return next();

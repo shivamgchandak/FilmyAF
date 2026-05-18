@@ -13,7 +13,6 @@ import { generateLimiter } from '../middleware/rateLimit.middleware.js';
 
 const router = Router();
 
-// Main pipeline — anon allowed (lower rate limit) or logged-in (higher)
 router.post(
   '/script',
   optionalAuth,
@@ -23,7 +22,6 @@ router.post(
   ctrl.generateScript
 );
 
-// Regenerate endpoints require ownership → require auth
 router.post(
   '/regenerate-scene',
   authMiddleware,
@@ -51,7 +49,6 @@ router.post(
   ctrl.regenerateCharacters
 );
 
-// Full re-edit: changes situation/mood and re-runs the whole pipeline
 router.post(
   '/edit-script',
   authMiddleware,

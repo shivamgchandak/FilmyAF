@@ -15,11 +15,9 @@ export const saveLocal = (arr) => {
   try {
     localStorage.setItem(KEY, JSON.stringify(arr.slice(0, 25)));
   } catch {
-    // quota exceeded — drop oldest by saving smaller slice
     try {
       localStorage.setItem(KEY, JSON.stringify(arr.slice(0, 10)));
     } catch {
-      /* ignore */
     }
   }
 };
@@ -28,6 +26,5 @@ export const clearLocal = () => {
   try {
     localStorage.removeItem(KEY);
   } catch {
-    /* ignore */
   }
 };

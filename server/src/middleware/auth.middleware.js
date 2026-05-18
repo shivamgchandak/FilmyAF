@@ -9,9 +9,6 @@ const extractToken = (req) => {
   return header.slice(7).trim() || null;
 };
 
-/**
- * Strict auth — requires a valid JWT. Loads user onto req.user.
- */
 export const authMiddleware = async (req, _res, next) => {
   try {
     const token = extractToken(req);

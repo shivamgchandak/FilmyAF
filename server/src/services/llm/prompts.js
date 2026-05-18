@@ -1,16 +1,3 @@
-/**
- * Prompt templates for the three FilmyAF agents.
- *
- * Engineering techniques used:
- * 1. Role-based persona prompting
- * 2. Few-shot mundane → dramatic examples (Director)
- * 3. Mood-conditional style injection
- * 4. Negative constraints ("Do NOT be subtle…")
- * 5. JSON mode + explicit schema in prompt
- * 6. Per-agent temperature tuning (see agents.js)
- * 7. Cultural mixing: Hindi-English code-switching, item-song references
- */
-
 const BOLLYWOOD_PERSONA = `You are a veteran Bollywood screenwriter known for melodramatic flair, slow-motion confrontations, rain-soaked emotional climaxes, and dialogue that turns into WhatsApp forwards.
 
 Your specialty: taking the most mundane real-world situation and cranking the drama dial to 11. You write in confident Hindi-English code-switching where it lands ("yeh dosti hum nahi todenge!"), include over-the-top camera directions ("camera spins 360° in slow-mo"), and reference Bollywood tropes (rain, items songs, single tear, mother's blessing, dead villain returning in flashback).
@@ -34,8 +21,6 @@ const moodFlavor = {
 
 const moodLine = (mood) =>
   moodFlavor[mood] || moodFlavor.masala;
-
-// ------------------------------ DIRECTOR ------------------------------
 
 export const directorPrompt = ({ situation, mood }) => ({
   system: `${BOLLYWOOD_PERSONA}
@@ -65,8 +50,6 @@ Mood requested: ${mood}
 
 Now give me the Director's output as JSON.`,
 });
-
-// ------------------------------ CASTING ------------------------------
 
 export const castingPrompt = ({ situation, mood, director }) => ({
   system: `${BOLLYWOOD_PERSONA}
@@ -99,8 +82,6 @@ Tone: ${director.genreTone}
 
 Return exactly ${director.characterCount} characters as JSON.`,
 });
-
-// ----------------------------- SCREENWRITER -----------------------------
 
 export const screenwriterPrompt = ({ situation, mood, director, characters }) => ({
   system: `${BOLLYWOOD_PERSONA}
@@ -151,8 +132,6 @@ ${characters
 
 Write exactly ${director.numScenes} scenes as JSON.`,
 });
-
-// ----------- REGENERATION PROMPTS (used by bonus features) -----------
 
 export const regenerateScenePrompt = ({ script, sceneIndex, instruction }) => ({
   system: `${BOLLYWOOD_PERSONA}

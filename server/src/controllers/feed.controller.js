@@ -4,18 +4,13 @@ import { Script } from '../models/Script.js';
 const FEED_LIMIT = 6;
 
 const baseProjection =
-  '-scenes.dialogue -__v'; // omit heavy fields for feed listings
+  '-scenes.dialogue -__v'; 
 
 const populateAuthor = {
   path: 'userId',
   select: 'firstName lastName username avatarEmoji',
 };
 
-/**
- * GET /api/feed/popular?period=day|week|month
- * Trending score = commentCount + likeCount + (viewCount / 10).
- * Implemented as an aggregation so we can sort by the computed field.
- */
 export const popular = asyncHandler(async (req, res) => {
   const period = req.query.period || 'week';
   const days = period === 'day' ? 1 : period === 'month' ? 30 : 7;
@@ -39,7 +34,6 @@ export const popular = asyncHandler(async (req, res) => {
     { $project: { 'scenes.dialogue': 0, __v: 0 } },
   ]);
 
-  // Aggregation returns plain objects; populate author manually
   await Script.populate(scripts, populateAuthor);
 
   res.json({ success: true, data: { scripts, period } });

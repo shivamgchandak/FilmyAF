@@ -1,7 +1,6 @@
 import { forwardRef } from 'react';
 import { formatMood } from '../../utils/formatters.js';
 
-// Renders a poster-style PNG-exportable card.
 const DramaCard = forwardRef(function DramaCard({ script }, ref) {
   const bestLine =
     script.scenes?.[0]?.dialogue?.[0]?.line ||

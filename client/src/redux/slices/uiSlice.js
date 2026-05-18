@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const slice = createSlice({
   name: 'ui',
   initialState: {
-    modal: null, // { type, props }
+    modal: null, 
   },
   reducers: {
     openModal(state, action) {

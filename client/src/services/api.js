@@ -7,7 +7,6 @@ export const api = axios.create({
   timeout: 90_000,
 });
 
-// Attach JWT from localStorage on every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('filmyaf_token');
   if (token) {
@@ -17,14 +16,11 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Bubble up a clean error shape
 api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
-      // Token expired/invalid — drop it; UI components will see logged-out state
       localStorage.removeItem('filmyaf_token');
-      // Soft signal — let the slices/components handle redirect
       window.dispatchEvent(new CustomEvent('filmyaf:unauthorized'));
     }
     const payload = err.response?.data?.error;

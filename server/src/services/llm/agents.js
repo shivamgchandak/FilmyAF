@@ -9,8 +9,6 @@ import {
 } from './prompts.js';
 import { ApiError } from '../../utils/ApiError.js';
 
-// ===== Manual validators (no Zod) =====
-
 const isNonEmptyString = (v) => typeof v === 'string' && v.trim().length > 0;
 const isInt = (v) => typeof v === 'number' && Number.isInteger(v);
 
@@ -75,8 +73,6 @@ const validateScreenwriter = (obj, expectedScenes, characterNames) => {
   return null;
 };
 
-// ===== Retry-once helper =====
-
 const callAndValidate = async ({
   systemPrompt,
   userPrompt,
@@ -109,10 +105,7 @@ const callAndValidate = async ({
   );
 };
 
-// ===== Public orchestrators =====
-
 export const runFullPipeline = async ({ situation, mood }) => {
-  // Agent 1: Director
   const directorOut = await callAndValidate({
     ...buildPrompt(directorPrompt({ situation, mood })),
     temperature: 0.4,
@@ -121,7 +114,6 @@ export const runFullPipeline = async ({ situation, mood }) => {
     label: 'Director',
   });
 
-  // Agent 2: Casting
   const castingOut = await callAndValidate({
     ...buildPrompt(castingPrompt({ situation, mood, director: directorOut })),
     temperature: 0.9,
@@ -130,7 +122,6 @@ export const runFullPipeline = async ({ situation, mood }) => {
     label: 'Casting',
   });
 
-  // Agent 3: Screenwriter
   const characterNames = castingOut.characters.map((c) => c.name);
   const screenplayOut = await callAndValidate({
     ...buildPrompt(
@@ -212,7 +203,6 @@ export const regenerateAllCharacters = async ({ script }) => {
   }));
 };
 
-// Small helper so callAndValidate takes consistent shape
 function buildPrompt({ system, user }) {
   return { systemPrompt: system, userPrompt: user };
 }
