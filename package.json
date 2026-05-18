@@ -1,0 +1,17 @@
+{
+  "name": "filmyaf",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Turn ordinary situations into absurd Bollywood-level drama.",
+  "scripts": {
+    "dev": "concurrently -n server,client -c yellow,cyan \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "build:client": "cd client && npm run build",
+    "start:server": "cd server && npm start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

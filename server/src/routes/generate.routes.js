@@ -1,0 +1,64 @@
+import { Router } from 'express';
+import * as ctrl from '../controllers/generate.controller.js';
+import {
+  generateValidator,
+  regenSceneValidator,
+  regenScriptOnlyValidator,
+  editScriptValidator,
+} from '../validators/generate.validator.js';
+import { validate } from '../middleware/validate.middleware.js';
+import { authMiddleware } from '../middleware/auth.middleware.js';
+import { optionalAuth } from '../middleware/optionalAuth.middleware.js';
+import { generateLimiter } from '../middleware/rateLimit.middleware.js';
+
+const router = Router();
+
+// Main pipeline — anon allowed (lower rate limit) or logged-in (higher)
+router.post(
+  '/script',
+  optionalAuth,
+  generateLimiter,
+  generateValidator,
+  validate,
+  ctrl.generateScript
+);
+
+// Regenerate endpoints require ownership → require auth
+router.post(
+  '/regenerate-scene',
+  authMiddleware,
+  generateLimiter,
+  regenSceneValidator,
+  validate,
+  ctrl.regenerateScene
+);
+
+router.post(
+  '/regenerate-title',
+  authMiddleware,
+  generateLimiter,
+  regenScriptOnlyValidator,
+  validate,
+  ctrl.regenerateTitle
+);
+
+router.post(
+  '/regenerate-characters',
+  authMiddleware,
+  generateLimiter,
+  regenScriptOnlyValidator,
+  validate,
+  ctrl.regenerateCharacters
+);
+
+// Full re-edit: changes situation/mood and re-runs the whole pipeline
+router.post(
+  '/edit-script',
+  authMiddleware,
+  generateLimiter,
+  editScriptValidator,
+  validate,
+  ctrl.editScript
+);
+
+export default router;
