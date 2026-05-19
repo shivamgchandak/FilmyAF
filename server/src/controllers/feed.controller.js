@@ -17,7 +17,13 @@ export const popular = asyncHandler(async (req, res) => {
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
   const scripts = await Script.aggregate([
-    { $match: { isPublic: true, createdAt: { $gte: since } } },
+    {
+      $match: {
+        isPublic: true,
+        userId: { $ne: null }, // only scripts owned by registered users
+        createdAt: { $gte: since },
+      },
+    },
     {
       $addFields: {
         trendScore: {
@@ -40,7 +46,7 @@ export const popular = asyncHandler(async (req, res) => {
 });
 
 export const recent = asyncHandler(async (_req, res) => {
-  const scripts = await Script.find({ isPublic: true })
+  const scripts = await Script.find({ isPublic: true, userId: { $ne: null } })
     .sort({ createdAt: -1 })
     .limit(FEED_LIMIT)
     .select(baseProjection)
@@ -49,7 +55,11 @@ export const recent = asyncHandler(async (_req, res) => {
 });
 
 export const mostCloned = asyncHandler(async (_req, res) => {
-  const scripts = await Script.find({ isPublic: true, cloneCount: { $gt: 0 } })
+  const scripts = await Script.find({
+    isPublic: true,
+    userId: { $ne: null },
+    cloneCount: { $gt: 0 },
+  })
     .sort({ cloneCount: -1, createdAt: -1 })
     .limit(FEED_LIMIT)
     .select(baseProjection)

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import Input from '../shared/Input.jsx';
 import Button from '../shared/Button.jsx';
 import { validateSignup } from '../../utils/validators.js';
@@ -8,6 +8,7 @@ import { signupThunk } from '../../redux/slices/authSlice.js';
 import { useToast } from '../../hooks/useToast.js';
 
 export default function SignupForm() {
+  const [params] = useSearchParams();
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -42,7 +43,7 @@ export default function SignupForm() {
         else toast.error(result.payload?.message || 'Signup failed');
       } else {
         toast.success('Welcome to FilmyAF! 🎬');
-        navigate('/');
+        navigate(params.get('redirect') || '/');
       }
     } finally {
       setSubmitting(false);

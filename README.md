@@ -2,167 +2,103 @@
 
 Turn ordinary situations into absurd Bollywood-level drama.
 
-FilmyAF takes a boring real-world situation ("fight between two founders over putting sugar in coffee") and transforms it into a full Bollywood-style script — title, tagline, characters, and dramatic scenes with dialogue — using a multi-agent LLM pipeline.
+FilmyAF takes a boring real-world situation (e.g. *"two founders fighting over putting sugar in coffee"*) and runs it through a multi-agent LLM pipeline (Director → Casting → Screenwriter) to spit out a full Bollywood-style script with a title, tagline, characters, and dramatic scenes you'll want to forward on WhatsApp.
 
----
-
-## Tech Stack (Strict MERN)
-
-- **Frontend:** React 18 + Vite + JavaScript + Tailwind CSS + Redux Toolkit + React Router v6 + Axios
-- **Backend:** Node.js + Express + MongoDB (Mongoose) + JWT + bcryptjs + express-validator
-- **LLM:** OpenRouter (`openai/gpt-oss-120b:free` primary, `google/gemma-4-31b-it:free` fallback)
-
----
-
-## Features
-
-### Mandatory
-- Situation input → multi-scene script output (title, tagline, scenes, dialogues, descriptions, indices)
-- Multi-agent LLM pipeline (Director → Casting → Screenwriter)
-- Proper error handling (themed, retryable)
-- Fully responsive UI
-- History stored locally (and synced to server account when logged in)
-
-### Bonus
-- Character cards (name, role, description, signature style, emoji)
-- Mood selector (Romantic, Action, Comedy, Thriller, Tragic, Masala, Mythological, 90s Throwback)
-- Regenerate specific sections (scene, title, characters)
-- Public shareable links with Open Graph previews (`/script/:slug`)
-- Drama Card PNG export
-- Community feed: Trending / Recent / Most Cloned (top 6 each)
-- Trending score = `likeCount + viewCount / 10`
-- Like, comment, clone & remix (clone supports a custom prompt + mood that re-runs the whole pipeline)
-- Owner edit & delete — edit re-runs the LLM pipeline and stamps `lastEditedAt`
-- IST timestamps: "Generated on …" + "Last updated on …" shown at the top of every script
-- Email/password auth with JWT
-
----
-
-## Project Structure
-
-```
-filmyaf/
-├── package.json              # Root scripts (concurrently)
-├── README.md
-├── .gitignore
-├── client/                   # React + Vite frontend
-└── server/                   # Express + MongoDB backend
-```
-
-See `client/` and `server/` for full structure.
+Built as a MERN app: **MongoDB + Express + React (Vite) + Node**, with **Google Gemini** doing the heavy lifting on the LLM side.
 
 ---
 
 ## Setup
 
-### 1. Prerequisites
-- Node.js 18+
-- MongoDB (local install or [Atlas](https://www.mongodb.com/cloud/atlas) free cluster)
-- OpenRouter API key — grab one free at <https://openrouter.ai>
+### 1. Prereqs
 
-### 2. Clone & install
+- **Node.js 18+**
+- **MongoDB** — either local install or a free [Atlas](https://www.mongodb.com/cloud/atlas/register) cluster
+- A **Google Gemini API key** (free)
+
+### 2. Clone + install packages
+
 ```bash
 git clone https://github.com/<your-username>/filmyaf.git
 cd filmyaf
 npm run install:all
 ```
 
+`npm run install:all` installs three things in one go:
+
+- **Root**: `concurrently` (so `npm run dev` can boot client + server together)
+- **Server** (`server/package.json`):
+  - `express` — HTTP server
+  - `mongoose` — MongoDB ODM
+  - `jsonwebtoken` + `bcryptjs` — auth (JWT + password hashing)
+  - `express-validator` — input validation
+  - `express-rate-limit` — per-route rate limits
+  - `helmet`, `cors`, `morgan` — security/CORS/logging
+  - `axios` — calling Gemini's REST API
+  - `nanoid` — short shareable slugs (`/script/rk7x9p2m`)
+  - `dotenv` — env loading
+  - `nodemon` (dev) — auto-restart on changes
+- **Client** (`client/package.json`):
+  - `react`, `react-dom`, `react-router-dom`
+  - `@reduxjs/toolkit`, `react-redux` — state
+  - `axios` — API calls
+  - `react-helmet-async` — Open Graph meta tags for share links
+  - `react-hot-toast` — toasts
+  - `html-to-image` — Drama Card PNG export
+  - `vite`, `@vitejs/plugin-react` (dev) — bundler
+  - `tailwindcss`, `postcss`, `autoprefixer` (dev) — styling
+
 ### 3. Environment variables
 
-**`server/.env`** (copy `server/.env.example`):
+Copy `server/.env.example` → `server/.env` and `client/.env.example` → `client/.env`, then fill them in using the instructions below.
+
+#### `server/.env`
+
 ```
 PORT=5000
 NODE_ENV=development
-MONGODB_URI=mongodb://localhost:27017/filmyaf
-JWT_SECRET=replace-with-a-long-random-string-at-least-32-chars
+MONGODB_URI=...
+JWT_SECRET=...
 JWT_EXPIRES_IN=7d
 BCRYPT_ROUNDS=12
-OPENROUTER_API_KEY=sk-or-v1-xxxxxxxx
-OPENROUTER_MODEL=openai/gpt-oss-120b:free
-OPENROUTER_FALLBACK_MODEL=google/gemma-4-31b-it:free
+GEMINI_API_KEY=...
+GEMINI_MODEL=gemini-2.5-flash
+GEMINI_FALLBACK_MODEL=gemini-2.0-flash
 CLIENT_URL=http://localhost:5173
 ```
 
-**`client/.env`** (copy `client/.env.example`):
+| Variable | How to get the value |
+|---|---|
+| `PORT` | Any free port. On Mac, port 5000 collides with AirPlay Receiver — use `5001` if that's the case. |
+| `NODE_ENV` | `development` locally, `production` when deployed. |
+| `MONGODB_URI` | **Local Mongo:** `mongodb://localhost:27017/filmyaf` (after `brew install mongodb-community` + `brew services start mongodb-community`). **Atlas:** sign up at <https://www.mongodb.com/cloud/atlas/register> → create a free M0 cluster → Database Access (create a user) → Network Access (Allow Access From Anywhere) → Connect → "Drivers" → copy the connection string, replace `<password>`, and add `/filmyaf` before the `?`. |
+| `JWT_SECRET` | Run `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` and paste the 96-character hex output. |
+| `JWT_EXPIRES_IN` | How long tokens last. `7d` is fine. |
+| `BCRYPT_ROUNDS` | `12` is the standard cost factor. |
+| `GEMINI_API_KEY` | Go to <https://aistudio.google.com/apikey> → sign in with Google → **Create API key** → "Create API key in new project" → copy the `AIza...` value. Free tier, no credit card. |
+| `GEMINI_MODEL` | `gemini-2.5-flash` (default) for speed + quality. Browse free models at <https://aistudio.google.com/app/apikey>. |
+| `GEMINI_FALLBACK_MODEL` | `gemini-2.0-flash` — used automatically if the primary 429s or 5xxs. |
+| `CLIENT_URL` | The URL where the Vite client runs. Locally: `http://localhost:5173`. When deployed: your Vercel URL. CORS uses this. |
+
+#### `client/.env`
+
 ```
 VITE_API_URL=http://localhost:5000/api
 VITE_APP_URL=http://localhost:5173
 ```
 
-### 4. Run locally
+| Variable | How to get the value |
+|---|---|
+| `VITE_API_URL` | The Express backend's base URL + `/api`. Locally: `http://localhost:5000/api` (or `5001` if you changed the server's `PORT`). When deployed: your Render/Railway/etc. URL + `/api`. |
+| `VITE_APP_URL` | The public URL of the client itself. Used to build shareable links (`/script/<slug>`). Locally: `http://localhost:5173`. When deployed: your Vercel URL. |
+
+### 4. Run
+
 ```bash
 npm run dev
 ```
 
-This starts the Express server on port `5000` and the Vite client on port `5173`.
-
-Open <http://localhost:5173>.
-
----
-
-## API Endpoints
-
-| Method | Path | Description |
-|---|---|---|
-| POST | `/api/auth/signup` | Register a new user |
-| POST | `/api/auth/login` | Login (returns JWT) |
-| GET  | `/api/auth/me` | Get current user (protected) |
-| POST | `/api/generate/script` | Run multi-agent generation |
-| POST | `/api/generate/regenerate-scene` | Regenerate a single scene (owner-only) |
-| POST | `/api/generate/regenerate-title` | Regenerate title + tagline (owner-only) |
-| POST | `/api/generate/regenerate-characters` | Regenerate characters (owner-only) |
-| POST | `/api/generate/edit-script` | Edit prompt/mood + re-run full pipeline (owner-only) |
-| GET  | `/api/scripts/share/:slug` | Public read (increments view) |
-| GET  | `/api/scripts/:id` | Get script by id (owner or public) |
-| POST | `/api/scripts` | Save generated script to account |
-| PATCH | `/api/scripts/:id` | Update script (owner-only) |
-| DELETE | `/api/scripts/:id` | Delete script (owner-only) |
-| POST | `/api/scripts/:id/clone` | Clone (optional `{situation, mood}` body triggers a remix) |
-| GET  | `/api/scripts/user/:username` | Public scripts by user |
-| GET  | `/api/scripts/my/history` | Own script history (protected) |
-| POST | `/api/scripts/:id/like` | Toggle like |
-| GET  | `/api/scripts/:id/likes` | Like count + hasLiked |
-| GET  | `/api/scripts/:id/comments` | List comments |
-| POST | `/api/scripts/:id/comments` | Add comment |
-| DELETE | `/api/comments/:id` | Delete comment (owner-only) |
-| GET  | `/api/feed/popular` | Top by trending score (top 6) |
-| GET  | `/api/feed/recent` | Most recent scripts (top 6) |
-| GET  | `/api/feed/most-cloned` | Most cloned scripts (top 6) |
-
----
-
-## Multi-Agent Pipeline
-
-Three sequential LLM agents, each with its own system prompt and temperature:
-
-1. **Director Agent** — picks a title, tagline, tone, number of scenes (3–5), and character count (2–4). _Temp 0.4_.
-2. **Casting Agent** — names dramatic characters with roles, descriptions, and signature styles. _Temp 0.9_.
-3. **Screenwriter Agent** — writes the scenes with dialogue, scene headings, and locations. _Temp 0.95_.
-
-Each agent uses OpenRouter's JSON mode + an explicit schema in the prompt. Outputs are validated manually; on validation/parse failure the call is retried once with the error appended, then falls back to a friendlier secondary model.
-
-Why three agents and not one big prompt?
-- Cleaner context per call (no token bloat)
-- Easier to regenerate one section (title only, scene only, characters only)
-- Better structured outputs (smaller schemas validate more reliably)
-
----
-
-## AI Tools Used in Development
-
-This project was built with assistance from Claude (Anthropic). Specifically:
-- **Architecture & scaffolding:** Planned the file structure, dependency choices, and API surface in conversation.
-- **Boilerplate generation:** Express middleware, Mongoose models, Redux slices, Tailwind components.
-- **Prompt engineering:** The three-agent system prompts and JSON schemas were iterated with Claude.
-- **Debugging:** Used Claude for tracing through validation errors and retry logic.
-
----
-
-## Deployment Notes
-
-- **Frontend:** Vercel — point at `client/`, set `VITE_API_URL` to your backend URL.
-- **Backend:** Render — point at `server/`, set all env vars in dashboard.
-- **DB:** MongoDB Atlas free tier — paste connection string into `MONGODB_URI`.
+That boots the Express server on `localhost:5000` and the Vite client on `localhost:5173` in parallel. Open <http://localhost:5173>.
 
 ---
 

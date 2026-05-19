@@ -39,16 +39,22 @@ export default function Generate() {
       toast.error(result.payload?.message || 'Generation failed');
       return;
     }
-    dispatch(
-      pushLocal({
-        title: result.payload.script.title,
-        tagline: result.payload.script.tagline,
-        mood,
-        situation,
-        shareSlug: result.payload.script.shareSlug || null,
-        createdAt: new Date().toISOString(),
-      })
-    );
+    // Only stash to local history when ANON. Logged-in users already have
+    // it persisted to their account by the server (save=true).
+    if (!isAuthenticated) {
+      const s = result.payload.script;
+      dispatch(
+        pushLocal({
+          title: s.title,
+          tagline: s.tagline,
+          mood,
+          situation,
+          characters: s.characters || [],
+          scenes: s.scenes || [],
+          createdAt: new Date().toISOString(),
+        })
+      );
+    }
     if (result.payload.saved && result.payload.script.shareSlug) {
       navigate(`/script/${result.payload.script.shareSlug}`);
     }

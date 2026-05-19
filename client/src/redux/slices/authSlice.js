@@ -7,6 +7,10 @@ const initialState = {
   user: null,
   token: localStorage.getItem(TOKEN_KEY),
   status: 'idle',
+  // 'idle' → no auth check fired yet
+  // 'loading' → /auth/me in flight
+  // 'ready' → check finished (with or without a user)
+  authStatus: localStorage.getItem(TOKEN_KEY) ? 'loading' : 'ready',
   error: null,
 };
 
@@ -45,6 +49,7 @@ const slice = createSlice({
       state.user = null;
       state.token = null;
       state.status = 'idle';
+      state.authStatus = 'ready';
       state.error = null;
       localStorage.removeItem(TOKEN_KEY);
     },
@@ -53,38 +58,37 @@ const slice = createSlice({
     },
   },
   extraReducers: (b) => {
-    b.addCase(signupThunk.pending, (s) => {
-      s.status = 'loading';
-      s.error = null;
-    });
+    b.addCase(signupThunk.pending, (s) => { s.status = 'loading'; s.error = null; });
     b.addCase(signupThunk.fulfilled, (s, a) => {
       s.status = 'success';
       s.user = a.payload.user;
       s.token = a.payload.token;
+      s.authStatus = 'ready';
     });
     b.addCase(signupThunk.rejected, (s, a) => {
       s.status = 'error';
       s.error = a.payload || { message: a.error.message };
     });
-    b.addCase(loginThunk.pending, (s) => {
-      s.status = 'loading';
-      s.error = null;
-    });
+    b.addCase(loginThunk.pending, (s) => { s.status = 'loading'; s.error = null; });
     b.addCase(loginThunk.fulfilled, (s, a) => {
       s.status = 'success';
       s.user = a.payload.user;
       s.token = a.payload.token;
+      s.authStatus = 'ready';
     });
     b.addCase(loginThunk.rejected, (s, a) => {
       s.status = 'error';
       s.error = a.payload || { message: a.error.message };
     });
+    b.addCase(loadUserThunk.pending, (s) => { s.authStatus = 'loading'; });
     b.addCase(loadUserThunk.fulfilled, (s, a) => {
       if (a.payload?.user) s.user = a.payload.user;
+      s.authStatus = 'ready';
     });
     b.addCase(loadUserThunk.rejected, (s) => {
       s.user = null;
       s.token = null;
+      s.authStatus = 'ready';
       localStorage.removeItem(TOKEN_KEY);
     });
   },
