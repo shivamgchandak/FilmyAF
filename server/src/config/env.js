@@ -20,9 +20,12 @@ export const env = {
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',
   BCRYPT_ROUNDS: parseInt(process.env.BCRYPT_ROUNDS || '12', 10),
 
-  GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
-  GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
-  GEMINI_FALLBACK_MODEL: process.env.GEMINI_FALLBACK_MODEL || 'gemini-2.0-flash',
+  // GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
+  // GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+  // GEMINI_FALLBACK_MODEL: process.env.GEMINI_FALLBACK_MODEL || 'gemini-2.0-flash',
+  GROQ_API_KEY: process.env.GROQ_API_KEY,
+  GROQ_MODEL: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
+  GROQ_FALLBACK_MODEL: process.env.GROQ_FALLBACK_MODEL || "qwen/qwen3-32b",
 
   CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:5173',
 };
