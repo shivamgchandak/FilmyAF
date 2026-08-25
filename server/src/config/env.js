@@ -1,7 +1,7 @@
 const required = [
   'MONGODB_URI',
   'JWT_SECRET',
-  'GEMINI_API_KEY',
+  'GROQ_API_KEY',
 ];
 
 const missing = required.filter((k) => !process.env[k] || process.env[k].trim() === '');
@@ -20,12 +20,9 @@ export const env = {
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',
   BCRYPT_ROUNDS: parseInt(process.env.BCRYPT_ROUNDS || '12', 10),
 
-  // GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
-  // GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
-  // GEMINI_FALLBACK_MODEL: process.env.GEMINI_FALLBACK_MODEL || 'gemini-2.0-flash',
   GROQ_API_KEY: process.env.GROQ_API_KEY,
-  GROQ_MODEL: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
-  GROQ_FALLBACK_MODEL: process.env.GROQ_FALLBACK_MODEL || "qwen/qwen3-32b",
+  GROQ_MODEL: process.env.GROQ_MODEL || "openai/gpt-oss-120b",
+  GROQ_FALLBACK_MODEL: process.env.GROQ_FALLBACK_MODEL || "openai/gpt-oss-20b",
 
   CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:5173',
 };
