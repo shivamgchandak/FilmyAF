@@ -61,9 +61,9 @@ MONGODB_URI=...
 JWT_SECRET=...
 JWT_EXPIRES_IN=7d
 BCRYPT_ROUNDS=12
-GEMINI_API_KEY=...
-GEMINI_MODEL=gemini-2.5-flash
-GEMINI_FALLBACK_MODEL=gemini-2.0-flash
+GROQ_API_KEY=...
+GROQ_MODEL=openai/gpt-oss-120b
+GROQ_FALLBACK_MODEL=openai/gpt-oss-20b
 CLIENT_URL=http://localhost:5173
 ```
 
@@ -75,9 +75,9 @@ CLIENT_URL=http://localhost:5173
 | `JWT_SECRET` | Run `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` and paste the 96-character hex output. |
 | `JWT_EXPIRES_IN` | How long tokens last. `7d` is fine. |
 | `BCRYPT_ROUNDS` | `12` is the standard cost factor. |
-| `GEMINI_API_KEY` | Go to <https://aistudio.google.com/apikey> → sign in with Google → **Create API key** → "Create API key in new project" → copy the `AIza...` value. Free tier, no credit card. |
-| `GEMINI_MODEL` | `gemini-2.5-flash` (default) for speed + quality. Browse free models at <https://aistudio.google.com/app/apikey>. |
-| `GEMINI_FALLBACK_MODEL` | `gemini-2.0-flash` — used automatically if the primary 429s or 5xxs. |
+| `GROQ_API_KEY` | Go to <https://console.groq.com/keys> → sign in → **Create API Key** → copy the `gsk_...` value. Free tier, no credit card. |
+| `GROQ_MODEL` | `openai/gpt-oss-120b` (default). Check the live list at <https://console.groq.com/docs/models> — Groq decommissions models periodically, and a retired ID returns a 404. |
+| `GROQ_FALLBACK_MODEL` | `openai/gpt-oss-20b` — used automatically if the primary 404s, 429s, or 5xxs. |
 | `CLIENT_URL` | The URL where the Vite client runs. Locally: `http://localhost:5173`. When deployed: your Vercel URL. CORS uses this. |
 
 #### `client/.env`

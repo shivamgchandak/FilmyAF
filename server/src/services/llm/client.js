@@ -19,12 +19,18 @@ export const callLLM = async ({
   }
 
   const attempt = async (model) => {
+    // gpt-oss models are reasoning models: their thinking tokens count against
+    // max_tokens, so keep the effort low or short budgets come back empty.
+    const isReasoning = model.startsWith("openai/gpt-oss");
+
     const response = await groq.chat.completions.create({
       model,
 
       temperature,
 
       max_tokens: maxTokens,
+
+      ...(isReasoning ? { reasoning_effort: "low" } : {}),
 
       response_format: jsonMode
         ? { type: "json_object" }
@@ -56,8 +62,10 @@ export const callLLM = async ({
   } catch (err) {
     const status = err.status;
 
+    // 404 = model decommissioned or not available on this tier -> try the fallback
     const retry =
       !status ||
+      status === 404 ||
       status === 429 ||
       status >= 500;
 
@@ -65,7 +73,9 @@ export const callLLM = async ({
       retry &&
       env.GROQ_MODEL !== env.GROQ_FALLBACK_MODEL
     ) {
-      console.warn("Primary Groq model failed, trying fallback...");
+      console.warn(
+        `Primary Groq model (${env.GROQ_MODEL}) failed [${status ?? "no status"}]: ${err.message}. Trying fallback (${env.GROQ_FALLBACK_MODEL})...`
+      );
 
       try {
         return await attempt(env.GROQ_FALLBACK_MODEL);
