@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import AppRouter from './router.jsx';
-import Navbar from './components/layout/Navbar.jsx';
-import Footer from './components/layout/Footer.jsx';
+import Navbar from './components/layout/Navbar';
+import Footer from './components/layout/Footer';
 import ErrorBoundary from './components/shared/ErrorBoundary.jsx';
 import { loadUserThunk } from './redux/slices/authSlice.js';
+import { loadTakes, setBalance } from './redux/slices/takesSlice.js';
 import { migrateLocalThunk, loadServerHistory } from './redux/slices/historySlice.js';
 
 export default function App() {
@@ -13,14 +14,23 @@ export default function App() {
   const authStatus = useSelector((s) => s.auth.authStatus);
   const migrated = useRef(false);
 
-  // Revalidate any persisted token on mount
   useEffect(() => {
     dispatch(loadUserThunk());
   }, [dispatch]);
 
-  // The moment we have a user (fresh login OR resumed session), try to
-  // migrate any anonymous local history into the account, then load
-  // the server history. Only do this once per session.
+  // Takes balance: fetched once the auth check settles (the answer differs for
+  // a signed-in user and an anonymous device), then kept current by every paid
+  // response without a refetch.
+  useEffect(() => {
+    if (authStatus === 'ready') dispatch(loadTakes());
+  }, [authStatus, user, dispatch]);
+
+  useEffect(() => {
+    const onTakes = (e) => dispatch(setBalance(e.detail));
+    window.addEventListener('filmyaf:takes', onTakes);
+    return () => window.removeEventListener('filmyaf:takes', onTakes);
+  }, [dispatch]);
+
   useEffect(() => {
     if (authStatus === 'ready' && user && !migrated.current) {
       migrated.current = true;
@@ -29,14 +39,12 @@ export default function App() {
         dispatch(loadServerHistory());
       })();
     }
-    if (!user) {
-      migrated.current = false;
-    }
+    if (!user) migrated.current = false;
   }, [authStatus, user, dispatch]);
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--bg)' }}>
         <Navbar />
         <main className="flex-1">
           <AppRouter />

@@ -1,6 +1,7 @@
 import { User } from '../models/User.js';
 import { ApiError } from '../utils/ApiError.js';
 import { signToken } from '../utils/jwt.js';
+import { SIGNUP_GRANT, istDayKey } from './takes.service.js';
 
 const tokenFor = (user) => signToken({ sub: user._id.toString() });
 
@@ -29,6 +30,9 @@ export const signup = async ({ firstName, lastName, email, password, username })
       email,
       password,
       username: cleanUsername,
+      takesBalance: SIGNUP_GRANT,
+      // Stamped so the daily top-up doesn't also fire on the day they join.
+      takesGrantedOn: istDayKey(),
     });
     return { user, token: tokenFor(user) };
   } catch (err) {

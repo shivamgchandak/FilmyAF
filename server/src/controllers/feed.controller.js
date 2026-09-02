@@ -66,3 +66,55 @@ export const mostCloned = asyncHandler(async (_req, res) => {
     .populate(populateAuthor);
   res.json({ success: true, data: { scripts } });
 });
+
+/* ── All scripts ───────────────────────────────────────────────
+   Everything public, newest first, paged with a keyset cursor rather than
+   skip/limit: skip re-scans from the top on every page and shifts rows when
+   something new is written mid-scroll, which duplicates cards. Sorting on
+   (createdAt, _id) makes the cursor exact and stable. */
+
+const encodeCursor = (doc) =>
+  Buffer.from(`${new Date(doc.createdAt).toISOString()}|${doc._id}`).toString('base64url');
+
+const decodeCursor = (raw) => {
+  try {
+    const [iso, id] = Buffer.from(raw, 'base64url').toString('utf8').split('|');
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime()) || !id) return null;
+    return { date, id };
+  } catch {
+    return null;
+  }
+};
+
+export const allScripts = asyncHandler(async (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit, 10) || FEED_LIMIT, 24);
+  const cursor = req.query.cursor ? decodeCursor(req.query.cursor) : null;
+
+  const filter = { isPublic: true, userId: { $ne: null } };
+  if (cursor) {
+    filter.$or = [
+      { createdAt: { $lt: cursor.date } },
+      { createdAt: cursor.date, _id: { $lt: cursor.id } },
+    ];
+  }
+
+  // Ask for one extra to learn whether another page exists, without a count().
+  const rows = await Script.find(filter)
+    .sort({ createdAt: -1, _id: -1 })
+    .limit(limit + 1)
+    .select(baseProjection)
+    .populate(populateAuthor);
+
+  const hasMore = rows.length > limit;
+  const scripts = hasMore ? rows.slice(0, limit) : rows;
+
+  res.json({
+    success: true,
+    data: {
+      scripts,
+      nextCursor: hasMore && scripts.length ? encodeCursor(scripts[scripts.length - 1]) : null,
+      hasMore,
+    },
+  });
+});

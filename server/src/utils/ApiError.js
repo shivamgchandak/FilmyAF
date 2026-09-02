@@ -22,6 +22,9 @@ export class ApiError extends Error {
   static conflict(message) {
     return new ApiError(409, 'CONFLICT', message);
   }
+  static outOfTakes(message = 'Out of takes', details) {
+    return new ApiError(402, 'OUT_OF_TAKES', message, details);
+  }
   static tooMany(message = 'Too many requests') {
     return new ApiError(429, 'TOO_MANY_REQUESTS', message);
   }

@@ -5,6 +5,8 @@ const initialState = {
   popular: [],
   recent: [],
   mostCloned: [],
+  /** "All scripts" is the only endless tab, so it carries its own paging state. */
+  all: { items: [], cursor: null, hasMore: true, status: 'idle' },
   activeTab: 'popular',
   status: 'idle',
   error: null,
@@ -13,6 +15,21 @@ const initialState = {
 export const loadPopular = createAsyncThunk('feed/popular', () => feedService.popular());
 export const loadRecent = createAsyncThunk('feed/recent', () => feedService.recent());
 export const loadMostCloned = createAsyncThunk('feed/most-cloned', () => feedService.mostCloned());
+
+export const loadAll = createAsyncThunk(
+  'feed/all',
+  ({ cursor = null } = {}) => feedService.all({ cursor }),
+  {
+    // Guard against a scroll handler firing twice before the first page lands,
+    // and against paging past the end.
+    condition: ({ cursor = null } = {}, { getState }) => {
+      const { all } = getState().feed;
+      if (all.status === 'loading') return false;
+      if (cursor && !all.hasMore) return false;
+      return true;
+    },
+  }
+);
 
 const slice = createSlice({
   name: 'feed',
@@ -34,6 +51,16 @@ const slice = createSlice({
     b.addCase(loadMostCloned.pending, (s) => { s.status = 'loading'; });
     b.addCase(loadMostCloned.fulfilled, (s, a) => { s.status = 'success'; s.mostCloned = a.payload.scripts; });
     b.addCase(loadMostCloned.rejected, (s, a) => { s.status = 'error'; s.error = a.error.message; });
+
+    b.addCase(loadAll.pending, (s) => { s.all.status = 'loading'; });
+    b.addCase(loadAll.fulfilled, (s, a) => {
+      const firstPage = !a.meta.arg?.cursor;
+      s.all.status = 'success';
+      s.all.items = firstPage ? a.payload.scripts : [...s.all.items, ...a.payload.scripts];
+      s.all.cursor = a.payload.nextCursor;
+      s.all.hasMore = Boolean(a.payload.hasMore);
+    });
+    b.addCase(loadAll.rejected, (s) => { s.all.status = 'error'; });
   },
 });
 

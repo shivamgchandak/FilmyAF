@@ -38,3 +38,7 @@ coverage/
 .cache/
 .parcel-cache/
 .eslintcache
+_to_delete/
+FilmyAF-Production-Bible.pdf
+_client-snapshot.tgz
+_ui-fixes*.tgz
