@@ -6,5 +6,6 @@ const router = Router();
 router.get('/popular', ctrl.popular);
 router.get('/recent', ctrl.recent);
 router.get('/most-cloned', ctrl.mostCloned);
+router.get('/all', ctrl.allScripts);
 
 export default router;

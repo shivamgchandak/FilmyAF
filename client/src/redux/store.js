@@ -4,6 +4,7 @@ import scriptReducer from './slices/scriptSlice.js';
 import feedReducer from './slices/feedSlice.js';
 import historyReducer from './slices/historySlice.js';
 import uiReducer from './slices/uiSlice.js';
+import takesReducer from './slices/takesSlice.js';
 
 export const store = configureStore({
   reducer: {
@@ -12,5 +13,6 @@ export const store = configureStore({
     feed: feedReducer,
     history: historyReducer,
     ui: uiReducer,
+    takes: takesReducer,
   },
 });

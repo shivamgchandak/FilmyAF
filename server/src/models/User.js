@@ -44,6 +44,18 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '🎬',
     },
+    /* Takes wallet. Accumulates: DAILY_GRANT is added for every calendar day
+       since takesGrantedOn, and nothing ever expires. Topped up lazily on
+       read by takes.service#grantDailyTakes. */
+    takesBalance: {
+      type: Number,
+      default: 30, // SIGNUP_GRANT — see services/takes.service.js
+      min: 0,
+    },
+    takesGrantedOn: {
+      type: String, // YYYY-MM-DD in IST
+      default: null,
+    },
   },
   { timestamps: true }
 );

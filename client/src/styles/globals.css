@@ -1,67 +1,319 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-:root {
-  color-scheme: dark;
+@theme {
+  --font-display: 'Anton', Impact, sans-serif;
+  --font-heading: 'Oswald', 'Anton', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier Prime', Courier, monospace;
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+
+  --color-accent: #D6294B;
+  --color-accent-hover: #BF2241;
+  --color-highlight: #E8A33D;
+  --color-paper: #F4F1E8;
+  --color-ink: #1A1815;
+  --color-dark-bg: #14120F;
+
+  --radius-none: 0px;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
 }
 
+/* ─── Light theme (paper) ──────────────────────────────────── */
+:root {
+  --bg:            #F4F1E8;
+  --surface:       #EDE9DC;
+  --surface-hi:    #E6E1D0;
+  --border:        rgba(26,24,21,0.13);
+  --border-strong: rgba(26,24,21,0.30);
+  --t1:            #1A1815;
+  --t2:            rgba(26,24,21,0.66);
+  --t3:            rgba(26,24,21,0.40);
+  --accent-sub:    rgba(214,41,75,0.07);
+  --shadow-sm: 0 1px 3px rgba(26,24,21,0.08), 0 1px 1px rgba(26,24,21,0.06);
+  --shadow-md: 0 4px 12px rgba(26,24,21,0.12), 0 1px 3px rgba(26,24,21,0.08);
+}
+
+/* ─── Dark theme ────────────────────────────────────────────── */
+.dark {
+  --bg:            #14120F;
+  --surface:       #1C1915;
+  --surface-hi:    #252018;
+  --border:        rgba(244,241,232,0.10);
+  --border-strong: rgba(244,241,232,0.26);
+  --t1:            #F4F1E8;
+  --t2:            rgba(244,241,232,0.64);
+  --t3:            rgba(244,241,232,0.36);
+  --accent-sub:    rgba(214,41,75,0.13);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4), 0 1px 1px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.4);
+}
+
+/* ─── Base ─────────────────────────────────────────────────── */
 html, body, #root {
   height: 100%;
 }
 
 body {
-  @apply bg-bolly-ink text-bolly-paper font-body antialiased;
-  background-image: radial-gradient(circle at 20% 0%, rgba(230,57,70,0.15), transparent 40%),
-                    radial-gradient(circle at 80% 100%, rgba(255,107,53,0.12), transparent 40%);
+  background-color: var(--bg);
+  color: var(--t1);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+/* ─── Typography helpers ────────────────────────────────────── */
+.font-display {
+  font-family: var(--font-display);
 }
-::-webkit-scrollbar-track {
-  background: rgba(255,255,255,0.05);
+.font-heading {
+  font-family: var(--font-heading);
 }
-::-webkit-scrollbar-thumb {
-  background: rgba(255,107,53,0.5);
-  border-radius: 5px;
+.font-mono {
+  font-family: var(--font-mono);
 }
-
-.heading {
-  @apply font-display tracking-wide;
+.font-sans {
+  font-family: var(--font-sans);
 }
 
-.btn-primary {
-  @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold
-         bg-bolly-red text-white shadow-lg shadow-bolly-red/30
-         hover:bg-bolly-saffron transition-all
-         disabled:opacity-50 disabled:cursor-not-allowed;
+.display-hero {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 6vw, 72px);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 0.93;
 }
 
-.btn-secondary {
-  @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold
-         bg-white/10 text-white border border-white/20
-         hover:bg-white/20 transition-all
-         disabled:opacity-50 disabled:cursor-not-allowed;
+.display-lg {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4.5vw, 56px);
+  text-transform: uppercase;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
 }
 
-.btn-ghost {
-  @apply inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg
-         text-bolly-paper/80 hover:bg-white/10 transition-all;
+.display-md {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3vw, 36px);
+  text-transform: uppercase;
+  line-height: 1;
 }
 
-.input {
-  @apply w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10
-         text-bolly-paper placeholder-bolly-paper/40
-         focus:outline-none focus:border-bolly-saffron focus:ring-2 focus:ring-bolly-saffron/30
-         transition-all;
+.display-sm {
+  font-family: var(--font-display);
+  font-size: 22px;
+  text-transform: uppercase;
+  line-height: 1;
 }
 
-.card {
-  @apply bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm;
+.heading-lg {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
-.badge {
-  @apply inline-block px-2 py-0.5 rounded-md text-xs font-semibold uppercase tracking-wider;
+.heading-md {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.heading-sm {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.mono-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+}
+
+.mono-sm {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.mono-md {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.slug-line {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.body-lg { font-size: 17px; line-height: 1.65; }
+.body-md { font-size: 15px; line-height: 1.6; }
+.body-sm { font-size: 13px; line-height: 1.55; }
+
+/* ─── Halftone grain surface ────────────────────────────────── */
+.grain-surface {
+  position: relative;
+}
+/* A 5px grid of 1px dots banded into visible stripes on large panels. A
+   tighter, fainter grid reads as paper texture instead. The dot colour also
+   has to flip with the theme — ink dots on an ink background are nothing. */
+.grain-surface::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(26,24,21,0.038) 0.5px, transparent 0.5px);
+  background-size: 3px 3px;
+  pointer-events: none;
+  z-index: 1;
+}
+.dark .grain-surface::after {
+  background-image: radial-gradient(circle, rgba(244,241,232,0.045) 0.5px, transparent 0.5px);
+}
+
+/* ─── Film strip ornament ─────────────────────────────────────
+   Drawn as a repeating background rather than a fixed run of divs: a counted
+   run stops short on a wide monitor and leaves a bald patch at the right. A
+   tile repeats to whatever width the viewport is. */
+.film-strip {
+  height: 28px;
+  background-color: #0D0C0A;
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2221%22%20height%3D%2228%22%20viewBox%3D%220%200%2021%2028%22%3E%3Crect%20x%3D%222.5%22%20y%3D%227%22%20width%3D%2216%22%20height%3D%2214%22%20rx%3D%221.5%22%20fill%3D%22none%22%20stroke%3D%22rgba%28244%2C241%2C232%2C0.20%29%22%20stroke-width%3D%221.5%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: repeat-x;
+  background-position: center center;
+  flex: none;
+}
+
+/* ─── Screenplay page lines ─────────────────────────────────── */
+.screenplay-action {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.65;
+  font-style: italic;
+  color: var(--t2);
+}
+
+.screenplay-speaker {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--t1);
+}
+
+.screenplay-parenthetical {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-style: italic;
+  color: var(--t3);
+}
+
+.screenplay-line {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--t1);
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--t3); }
+
+/* ─── Selection ─────────────────────────────────────────────── */
+::selection {
+  background-color: rgba(214,41,75,0.18);
+  color: var(--t1);
+}
+
+/* ─── Focus rings ───────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #D6294B;
+  outline-offset: 2px;
+}
+
+/* ─── Transitions ───────────────────────────────────────────── */
+a, button, input, textarea, select, .card, [class*='hover:'] {
+  transition-property: background-color, border-color, color, opacity, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── Utility ───────────────────────────────────────────────── */
+.border-rule {
+  border-top: 1px solid var(--border);
+}
+.border-rule-strong {
+  border-top: 1px solid var(--border-strong);
+}
+.border-side {
+  border-left: 1px solid var(--border);
+}
+.bg-surface { background-color: var(--surface); }
+.bg-surface-hi { background-color: var(--surface-hi); }
+.text-t1 { color: var(--t1); }
+.text-t2 { color: var(--t2); }
+.text-t3 { color: var(--t3); }
+.border-default { border-color: var(--border); }
+.border-strong { border-color: var(--border-strong); }
+
+/* ─── Typewriter animation ──────────────────────────────────── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in-up {
+  animation: fadeInUp 0.4s ease forwards;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-hi) 50%, var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+.pulse-active {
+  animation: pulse-dot 1.2s ease infinite;
 }
