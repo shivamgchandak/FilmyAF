@@ -84,3 +84,24 @@ export const regenerateFromPrompt = async (script, { situation, mood }) => {
   await script.save();
   return script;
 };
+
+/**
+ * The trending score, defined once.
+ *
+ * A comment is worth more than a like because it costs more to leave; a view is
+ * worth a tenth of either because it is nearly free. The feed and a profile's
+ * "top scripts" must rank the same way, so both import this rather than each
+ * writing the $add out - two copies of a ranking rule drift the first time one
+ * of them is tuned.
+ */
+export const TREND_SCORE_STAGE = {
+  $addFields: {
+    trendScore: {
+      $add: [
+        { $ifNull: ['$commentCount', 0] },
+        { $ifNull: ['$likeCount', 0] },
+        { $divide: [{ $ifNull: ['$viewCount', 0] }, 10] },
+      ],
+    },
+  },
+};

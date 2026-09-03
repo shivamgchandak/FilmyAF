@@ -1,5 +1,6 @@
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { Script } from '../models/Script.js';
+import { TREND_SCORE_STAGE } from '../services/scripts.service.js';
 
 const FEED_LIMIT = 6;
 
@@ -24,17 +25,7 @@ export const popular = asyncHandler(async (req, res) => {
         createdAt: { $gte: since },
       },
     },
-    {
-      $addFields: {
-        trendScore: {
-          $add: [
-            { $ifNull: ['$commentCount', 0] },
-            { $ifNull: ['$likeCount', 0] },
-            { $divide: [{ $ifNull: ['$viewCount', 0] }, 10] },
-          ],
-        },
-      },
-    },
+    TREND_SCORE_STAGE,
     { $sort: { trendScore: -1, createdAt: -1 } },
     { $limit: FEED_LIMIT },
     { $project: { 'scenes.dialogue': 0, __v: 0 } },

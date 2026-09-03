@@ -13,6 +13,7 @@ import scriptsRoutes from './routes/scripts.routes.js';
 import commentsRoutes from './routes/comments.routes.js';
 import feedRoutes from './routes/feed.routes.js';
 import takesRoutes from './routes/takes.routes.js';
+import suggestionsRoutes from './routes/suggestions.routes.js';
 
 export const app = express();
 
@@ -44,6 +45,7 @@ app.use('/api/scripts', scriptsRoutes);
 app.use('/api/comments', commentsRoutes); 
 app.use('/api/feed', feedRoutes);
 app.use('/api/takes', takesRoutes);
+app.use('/api/suggestions', suggestionsRoutes);
 
 app.use((req, res) => {
   res.status(404).json({

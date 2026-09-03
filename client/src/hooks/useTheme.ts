@@ -8,7 +8,7 @@ const read = (): Theme => {
     const stored = localStorage.getItem(KEY);
     if (stored === 'light' || stored === 'dark') return stored;
   } catch {
-    /* private mode — fall through to system */
+    /* private mode - fall through to system */
   }
   return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 };
@@ -21,7 +21,7 @@ export function useTheme() {
     try {
       localStorage.setItem(KEY, theme);
     } catch {
-      /* not persistable — the class is still applied for this session */
+      /* not persistable - the class is still applied for this session */
     }
   }, [theme]);
 

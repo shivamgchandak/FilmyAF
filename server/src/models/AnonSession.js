@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 /**
  * An anonymous visitor's takes wallet, keyed by a signed httpOnly cookie.
  *
- * Anonymous takes are granted ONCE and never refilled — 5 per device, for
+ * Anonymous takes are granted ONCE and never refilled - 5 per device, for
  * the life of that device's cookie. Clearing cookies buys a new wallet, which
  * is the ceiling on how tight an anonymous limit can be without an account;
  * `ip` is stored as a secondary signal for spotting that if it ever matters.

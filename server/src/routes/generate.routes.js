@@ -25,6 +25,16 @@ router.post(
 );
 
 router.post(
+  '/stream',
+  optionalAuth,
+  anonSession,
+  generateLimiter,
+  generateValidator,
+  validate,
+  ctrl.generateScriptStream
+);
+
+router.post(
   '/regenerate-scene',
   authMiddleware,
   generateLimiter,

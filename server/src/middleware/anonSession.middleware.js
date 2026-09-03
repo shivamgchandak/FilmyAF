@@ -10,11 +10,11 @@ const ONE_YEAR = 365 * 24 * 60 * 60 * 1000;
  * follow the device rather than the tab.
  *
  * The cookie is signed and httpOnly, so it cannot be read or forged from
- * JavaScript — localStorage would be one console line away from an infinite
+ * JavaScript - localStorage would be one console line away from an infinite
  * refill. Clearing cookies still earns a fresh wallet; that is the ceiling on
  * an anonymous limit, and the reason an account is worth having.
  *
- * Skipped entirely when a user is signed in — they pay from their account.
+ * Skipped entirely when a user is signed in - they pay from their account.
  */
 export const anonSession = async (req, res, next) => {
   if (req.user) return next();

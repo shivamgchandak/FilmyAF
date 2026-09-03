@@ -1,16 +1,7 @@
-export const MOOD_LABELS = {
-  romantic: { label: 'Romantic', emoji: '💕' },
-  action: { label: 'Action', emoji: '💥' },
-  comedy: { label: 'Comedy', emoji: '😂' },
-  thriller: { label: 'Thriller', emoji: '🔪' },
-  tragic: { label: 'Tragic', emoji: '😭' },
-  masala: { label: 'Masala', emoji: '🌶️' },
-  mythological: { label: 'Mythological', emoji: '⚡' },
-  '90s-throwback': { label: '90s Throwback', emoji: '📼' },
-};
-
-export const formatMood = (mood) =>
-  MOOD_LABELS[mood] ? `${MOOD_LABELS[mood].emoji} ${MOOD_LABELS[mood].label}` : mood;
+/* Mood vocabulary lives in lib/moods.tsx - labels, subtitles, colours and the
+   line-art marks, all keyed off the values the API stores. The emoji copy that
+   used to sit here was a v1 leftover with no importers; two sources for the
+   same list is how the two drift apart. */
 
 export const timeAgo = (iso) => {
   if (!iso) return '';

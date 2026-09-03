@@ -163,7 +163,10 @@ export default function ScriptView() {
         <Icon name="back" size={12} /> All scripts
       </Link>
 
-      <div className="grid grid-cols-12 gap-8">
+      {/* gap-x waits for lg, where the 8/4 split actually exists. A 12-col
+          grid with a 32px gap has a floor of 11 x 32 = 352px, which overflows
+          any phone even though both children are col-span-12 there. */}
+      <div className="grid grid-cols-12 gap-y-8 lg:gap-x-8">
         {/* ── Main column ─────────────────────────────── */}
         <div className="col-span-12 lg:col-span-8">
           <div className="border border-[var(--border)] rounded-[2px] bg-[var(--surface)] mb-8 overflow-hidden">
@@ -185,7 +188,7 @@ export default function ScriptView() {
                 {script.tagline && <p className="body-lg italic text-[var(--t2)] mb-6 max-w-[480px]">{script.tagline}</p>}
 
                 <div className="flex items-start gap-3 pt-4 border-t border-[var(--border)]">
-                  <span className="mono-label text-[var(--t3)] pt-px flex-shrink-0">Based on —</span>
+                  <span className="mono-label text-[var(--t3)] pt-px flex-shrink-0">Based on ·</span>
                   <p className="body-sm text-[var(--t2)] italic leading-relaxed">{script.situation}</p>
                 </div>
               </div>
@@ -208,7 +211,7 @@ export default function ScriptView() {
               <div className="flex items-center gap-2">
                 {/* Cloning your own script would just duplicate it, so the
                     control is not offered to the owner at all. Signed-out
-                    visitors still see it — clicking is what asks them to join. */}
+                    visitors still see it - clicking is what asks them to join. */}
                 {!isOwner && (
                   <Button
                     size="sm"

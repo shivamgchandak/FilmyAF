@@ -166,7 +166,7 @@ body {
 }
 /* A 5px grid of 1px dots banded into visible stripes on large panels. A
    tighter, fainter grid reads as paper texture instead. The dot colour also
-   has to flip with the theme — ink dots on an ink background are nothing. */
+   has to flip with the theme - ink dots on an ink background are nothing. */
 .grain-surface::after {
   content: '';
   position: absolute;
@@ -178,6 +178,16 @@ body {
 }
 .dark .grain-surface::after {
   background-image: radial-gradient(circle, rgba(244,241,232,0.045) 0.5px, transparent 0.5px);
+}
+/* One step coarser, for a large flat field like the auth poster panel: a
+   visible dot rather than a texture. Same theme flip as the base grain - the
+   dots have to be ink on paper and paper on ink, or they vanish in one theme. */
+.grain-surface.grain-coarse::after {
+  background-image: radial-gradient(circle, rgba(26,24,21,0.05) 1px, transparent 1px);
+  background-size: 5px 5px;
+}
+.dark .grain-surface.grain-coarse::after {
+  background-image: radial-gradient(circle, rgba(244,241,232,0.04) 1px, transparent 1px);
 }
 
 /* ─── Film strip ornament ─────────────────────────────────────
@@ -230,6 +240,16 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--t3); }
+
+/* Opt-out for strips that scroll by swipe/drag only (tab rails, chip rows).
+   The global bar above is fine on a page, but on a 40px-tall rail it reads as
+   chrome - and an overflow-x container also gets an overflow-y:auto bar from
+   any sub-pixel of vertical overflow, which is the one nobody asked for. */
+.no-scrollbar {
+  scrollbar-width: none;      /* Firefox */
+  -ms-overflow-style: none;   /* legacy Edge */
+}
+.no-scrollbar::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
 /* ─── Selection ─────────────────────────────────────────────── */
 ::selection {
