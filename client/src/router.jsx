@@ -14,7 +14,7 @@ export default function AppRouter() {
       <Route path="/generate" element={<Generate />} />
       <Route path="/script/:slug" element={<ScriptView />} />
       {/*
-        /history is public — the page itself shows:
+        /history is public - the page itself shows:
           - server-saved scripts if logged in
           - local-on-device scripts if logged out
       */}

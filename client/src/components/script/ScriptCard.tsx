@@ -50,7 +50,7 @@ export default function ScriptCard({ script }: { script: Script }) {
           {script.title}
         </h3>
         {/* Clamped and height-reserved so every card in a row breaks its
-            footer rule at the same y — ragged dividers read as broken. */}
+            footer rule at the same y - ragged dividers read as broken. */}
         <p className="body-sm text-[var(--t2)] italic leading-relaxed line-clamp-2 min-h-[2.9em]">
           {script.tagline}
         </p>

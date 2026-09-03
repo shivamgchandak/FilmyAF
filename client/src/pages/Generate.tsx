@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -12,14 +12,23 @@ import GeneratingOverlay from '../components/script/GeneratingOverlay';
 import ScriptBody from '../components/script/ScriptBody';
 import { MOOD_KEYS, MOOD_LABEL, type MoodKey } from '../lib/moods';
 
-import { generateThunk, saveCurrentThunk } from '../redux/slices/scriptSlice.js';
+import { generateStreamThunk, saveCurrentThunk } from '../redux/slices/scriptSlice.js';
 import { pushLocal } from '../redux/slices/historySlice.js';
 import { validateSituation } from '../utils/validators.js';
 import { useAuth } from '../hooks/useAuth.js';
 import { useTakes } from '../hooks/useTakes';
 import { useToast } from '../hooks/useToast.js';
+import { suggestionService } from '../services/suggestionService.js';
 
-const SUGGESTIONS = [
+/* The title now arrives mid-run from the Director, so this is only the
+   completion beat - long enough to see every stage tick over and "Print!"
+   land, short enough not to feel like padding. */
+const REVEAL_MS = 1000;
+
+/* Rendered immediately so the chip row never flashes empty, then replaced by
+   the day's set once /suggestions/daily answers. If that call fails the seed
+   just stays - a user who doesn't know what to type still gets examples. */
+const SEED_SUGGESTIONS = [
   'Fight between two founders over putting sugar in coffee',
   'Mom finds out son ordered Maggi instead of eating dal',
   "Office IT guy refuses to reset everyone's password",
@@ -30,12 +39,23 @@ const SUGGESTIONS = [
 
 export default function Generate() {
   const [situation, setSituation] = useState('');
+  const [suggestions, setSuggestions] = useState<string[]>(SEED_SUGGESTIONS);
+  const [reveal, setReveal] = useState<{ title: string; tagline?: string } | null>(null);
+  /* Set on mount as well as cleared on unmount. Under StrictMode React mounts,
+     unmounts and remounts in dev, so a ref that is only cleared in the cleanup
+     stays false forever after that first simulated unmount - which stranded the
+     overlay and skipped the navigate. */
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
   const [mood, setMood] = useState<MoodKey | null>(null);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
   const { isAuthenticated, user } = useAuth();
-  const { currentScript, generationStatus } = useSelector((s: any) => s.script);
+  const { currentScript, generationStatus, stream } = useSelector((s: any) => s.script);
   const dispatch = useDispatch<any>();
   const navigate = useNavigate();
   const toast = useToast();
@@ -46,17 +66,41 @@ export default function Generate() {
   const isGenerating = generationStatus === 'loading';
   const canGenerate = situation.trim().length >= 5 && mood !== null && affordable;
 
+  useEffect(() => {
+    let live = true;
+    suggestionService
+      .daily()
+      .then((d: { suggestions?: string[] }) => {
+        if (live && Array.isArray(d?.suggestions) && d.suggestions.length) {
+          setSuggestions(d.suggestions);
+        }
+      })
+      .catch(() => {
+        /* Seed stays on screen - chips are a nicety, not a blocker. */
+      });
+    return () => {
+      live = false;
+    };
+  }, []);
+
   const onGenerate = async () => {
     const e = validateSituation(situation);
     setError(e || '');
     if (e || !mood) return;
 
-    const result = await dispatch(generateThunk({ situation, mood, save: isAuthenticated }));
+    const result = await dispatch(generateStreamThunk({ situation, mood, save: isAuthenticated }));
     if (result.error) {
       toast.error(result.payload?.message || 'Generation failed');
       return;
     }
     const s = result.payload.script;
+
+    // Keep the overlay up, now showing the real title, before the page changes.
+    setReveal({ title: s.title, tagline: s.tagline });
+    await new Promise((r) => setTimeout(r, REVEAL_MS));
+    if (!mounted.current) return;
+    setReveal(null);
+
     if (!isAuthenticated) {
       dispatch(pushLocal({
         title: s.title, tagline: s.tagline, mood, situation,
@@ -78,7 +122,7 @@ export default function Generate() {
   };
 
   /* ── Result ─────────────────────────────────────────── */
-  if (currentScript && !isGenerating) {
+  if (currentScript && !isGenerating && !reveal) {
     return (
       <div className="max-w-[1200px] mx-auto px-6 py-10">
         <title>{`${currentScript.title} · FilmyAF`}</title>
@@ -115,9 +159,19 @@ export default function Generate() {
   return (
     <div className="max-w-[1200px] mx-auto px-6 py-10">
       <title>Generate · FilmyAF</title>
-      {isGenerating && <GeneratingOverlay />}
+      {(isGenerating || reveal) && (
+        <GeneratingOverlay
+          finished={!!reveal}
+          stage={stream?.stage}
+          title={reveal?.title ?? stream?.preview?.title}
+          tagline={reveal?.tagline ?? stream?.preview?.tagline}
+        />
+      )}
 
-      <div className="grid grid-cols-12 gap-8">
+      {/* gap-x waits for lg, where the 8/4 split actually exists. A 12-col
+          grid with a 32px gap has a floor of 11 x 32 = 352px, which overflows
+          any phone even though both children are col-span-12 there. */}
+      <div className="grid grid-cols-12 gap-y-8 lg:gap-x-8">
         <div className="col-span-12 lg:col-span-8">
           <header className="mb-10">
             <div className="flex items-center gap-3 mb-3">
@@ -150,7 +204,7 @@ export default function Generate() {
           <div className="mb-10">
             <p className="mono-label text-[var(--t3)] mb-3">Or try one of these</p>
             <div className="flex flex-wrap gap-2">
-              {SUGGESTIONS.map((s) => (
+              {suggestions.map((s) => (
                 <SuggestionChip key={s} text={s} onClick={() => setSituation(s)} />
               ))}
             </div>
@@ -201,7 +255,7 @@ export default function Generate() {
                   {known ? (
                     <TakesCounter remaining={balance!} anonymous={anonymous} />
                   ) : (
-                    <span className="mono-label text-[var(--t3)]">—</span>
+                    <span className="mono-label text-[var(--t3)]">-</span>
                   )}
                 </div>
               </div>
@@ -213,7 +267,7 @@ export default function Generate() {
                     <>
                       <p className="body-sm text-[var(--t2)] mb-4">
                         You've used your {5} free takes on this device. An account gets you
-                        {' '}{10} more every day — and they pile up, they never expire.
+                        {' '}{10} more every day, and they pile up. They never expire.
                       </p>
                       <Link to={`/signup?redirect=/generate`}>
                         <Button fullWidth>Create an account</Button>
@@ -229,7 +283,7 @@ export default function Generate() {
               ) : (
                 <>
                   <Button fullWidth disabled={!canGenerate} loading={isGenerating} onClick={onGenerate}>
-                    Action — generate script
+                    Action · generate script
                     {!isGenerating && <Icon name="arrow" size={13} />}
                   </Button>
                   {!canGenerate && (
@@ -242,7 +296,7 @@ export default function Generate() {
 
               {!isAuthenticated && (
                 <p className="body-sm text-[var(--t3)] mt-4 pt-4 border-t border-[var(--border)] leading-relaxed">
-                  You're not signed in — the script won't be saved. You can create an account
+                  You're not signed in, so the script won't be saved. You can create an account
                   afterwards to keep it.
                 </p>
               )}

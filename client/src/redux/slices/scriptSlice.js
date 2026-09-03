@@ -6,6 +6,11 @@ const initialState = {
   currentScript: null,
   generationStatus: 'idle', 
   error: null,
+  /* Live pipeline state, fed by the SSE stream. `stage` is the index of the
+     agent currently working (0 Director, 1 Casting, 2 Screenwriter); preview
+     holds what has landed so far, so the overlay can show the real title while
+     Casting and the Screenwriter are still running. */
+  stream: { stage: 0, preview: null },
   regenStatus: {
     scene: null,        
     title: false,
@@ -21,6 +26,27 @@ export const generateThunk = createAsyncThunk(
       return data;
     } catch (e) {
       return rejectWithValue({ message: e.message, details: e.details });
+    }
+  }
+);
+
+/** Ordered to match PIPELINE in components/ui/PipelineStepper. */
+const STAGE_INDEX = { director: 0, casting: 1, screenwriter: 2 };
+
+export const generateStreamThunk = createAsyncThunk(
+  'script/generateStream',
+  async ({ situation, mood, save }, { dispatch, rejectWithValue }) => {
+    try {
+      return await generateService.generateStream({
+        situation,
+        mood,
+        save,
+        onStage: (stage, payload) => {
+          dispatch(stageLanded({ stage, payload }));
+        },
+      });
+    } catch (e) {
+      return rejectWithValue({ message: e.message, details: e.details, code: e.code });
     }
   }
 );
@@ -83,6 +109,18 @@ const slice = createSlice({
       state.currentScript = null;
       state.generationStatus = 'idle';
       state.error = null;
+      state.stream = { stage: 0, preview: null };
+    },
+    /* An agent finished. Advance the stepper past it and keep whatever it
+       produced - the Director's title is the reason this endpoint exists. */
+    stageLanded(state, action) {
+      const { stage, payload } = action.payload;
+      const idx = STAGE_INDEX[stage];
+      if (idx === undefined) return;
+      state.stream.stage = Math.min(idx + 1, 2);
+      if (stage === 'director') {
+        state.stream.preview = { title: payload.title, tagline: payload.tagline };
+      }
     },
   },
   extraReducers: (b) => {
@@ -97,6 +135,21 @@ const slice = createSlice({
     b.addCase(generateThunk.rejected, (s, a) => {
       s.generationStatus = 'error';
       s.error = a.payload || { message: a.error.message };
+    });
+
+    b.addCase(generateStreamThunk.pending, (s) => {
+      s.generationStatus = 'loading';
+      s.error = null;
+      s.stream = { stage: 0, preview: null };
+    });
+    b.addCase(generateStreamThunk.fulfilled, (s, a) => {
+      s.generationStatus = 'success';
+      s.currentScript = a.payload.script;
+    });
+    b.addCase(generateStreamThunk.rejected, (s, a) => {
+      s.generationStatus = 'error';
+      s.error = a.payload || { message: a.error.message };
+      s.stream = { stage: 0, preview: null };
     });
 
     b.addCase(saveCurrentThunk.fulfilled, (s, a) => {
@@ -138,5 +191,5 @@ const slice = createSlice({
   },
 });
 
-export const { setCurrentScript, clearCurrent } = slice.actions;
+export const { setCurrentScript, clearCurrent, stageLanded } = slice.actions;
 export default slice.reducer;

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
 /* Make's footer carried invented stats (10,247 scripts generated). There is no
-   stats endpoint, so that column is replaced with the pipeline — true, and it
+   stats endpoint, so that column is replaced with the pipeline - true, and it
    explains the product to a first-time visitor. */
 const PIPELINE = [
   ['01', 'Director picks the title and the shape'],
@@ -48,7 +48,6 @@ export default function Footer() {
 
         <div className="flex items-center justify-between pt-8 mt-8 border-t border-[var(--border)] gap-4 flex-wrap">
           <span className="mono-label text-[var(--t3)]">© 2026 FilmyAF · All takes reserved</span>
-          <span className="mono-label text-[var(--t3)]">Beta</span>
         </div>
       </div>
     </footer>

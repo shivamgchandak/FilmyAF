@@ -39,7 +39,6 @@ export default function Navbar() {
           <span style={{ fontFamily: 'var(--font-display)', fontSize: 22, letterSpacing: '-0.01em', lineHeight: 1 }} className="text-[#D6294B]">
             AF
           </span>
-          <span className="mono-label text-[var(--t3)] ml-1 hidden sm:inline">Beta</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-6">
@@ -49,12 +48,15 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* The icon shows the destination, not the current state: in the
+              dark theme you see a sun, because that is what clicking gets you. */}
           <button
             onClick={toggle}
             title={isDark ? 'Light mode' : 'Dark mode'}
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             className="hidden md:flex items-center justify-center w-7 h-7 border border-[var(--border)] rounded-[2px] text-[var(--t3)] hover:text-[var(--t1)] hover:border-[var(--border-strong)] transition-colors"
           >
-            <span className="mono-label text-[9px]">{isDark ? 'LT' : 'DK'}</span>
+            <Icon name={isDark ? 'sun' : 'moon'} size={14} />
           </button>
 
           {isAuthenticated ? (
@@ -62,7 +64,7 @@ export default function Navbar() {
               {known && (
                 <Link
                   to="/generate"
-                  title="Takes left — tap to spend some"
+                  title="Takes left. Tap to spend some"
                   className="inline-flex items-center px-2 py-1 border border-[var(--border)] rounded-[2px] hover:border-[var(--border-strong)] transition-colors"
                 >
                   <TakesCounter remaining={balance!} anonymous={anonymous} compact />
@@ -76,7 +78,6 @@ export default function Navbar() {
                     name={[user?.firstName, user?.lastName].filter(Boolean).join(' ')}
                     size="sm"
                   />
-                  <span className="text-[var(--t3)] hidden sm:block text-[10px]">▾</span>
                 </button>
 
                 {avatarOpen && (
@@ -140,7 +141,8 @@ export default function Navbar() {
                 <TakesCounter remaining={balance!} anonymous={anonymous} />
               </div>
             )}
-            <button onClick={toggle} className="text-left mono-label text-[var(--t2)]">
+            <button onClick={toggle} className="flex items-center gap-2 text-left mono-label text-[var(--t2)]">
+              <Icon name={isDark ? 'sun' : 'moon'} size={14} />
               {isDark ? 'Light mode' : 'Dark mode'}
             </button>
             {!isAuthenticated && (

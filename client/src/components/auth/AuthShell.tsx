@@ -12,18 +12,14 @@ interface Props {
 export default function AuthShell({ eyebrow, heading, blurb, children, footer }: Props) {
   return (
     <div className="grid grid-cols-12 min-h-[calc(100vh-3.5rem)]">
-      {/* Poster panel */}
+      {/* Poster panel. It used to force `.dark` on itself and paint #14120F
+          regardless of theme, which left a slab of night down the side of an
+          otherwise paper-white page. It now reads the ambient tokens like every
+          other surface, so it is paper in light and ink in dark. */}
       <div
-        className="dark hidden lg:flex col-span-5 flex-col justify-between p-12 border-r border-[var(--border)] relative overflow-hidden"
-        style={{ backgroundColor: '#14120F', color: '#F4F1E8' }}
+        className="grain-surface grain-coarse hidden lg:flex col-span-5 flex-col justify-between p-12 border-r border-[var(--border)] relative overflow-hidden"
+        style={{ backgroundColor: 'var(--surface)', color: 'var(--t1)' }}
       >
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: 'radial-gradient(circle, rgba(244,241,232,0.04) 1px, transparent 1px)',
-            backgroundSize: '5px 5px',
-          }}
-        />
         <Link to="/" className="relative z-10 flex items-baseline gap-1">
           <span style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1 }}>FILMY</span>
           <span style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1, color: '#D6294B' }}>AF</span>
@@ -46,12 +42,12 @@ export default function AuthShell({ eyebrow, heading, blurb, children, footer }:
             <br />
             in three acts.
           </p>
-          <p className="body-md mt-6 max-w-[320px]" style={{ color: 'rgba(244,241,232,0.55)' }}>
-            Every script you keep, every clone of it, every reaction — all of it lives on your account.
+          <p className="body-md mt-6 max-w-[320px]" style={{ color: 'var(--t2)' }}>
+            Every script you keep, every clone of it, every reaction: all of it lives on your account.
           </p>
         </div>
 
-        <p className="relative z-10 mono-label" style={{ color: 'rgba(244,241,232,0.25)' }}>
+        <p className="relative z-10 mono-label" style={{ color: 'var(--t3)' }}>
           © 2026 FilmyAF · All takes reserved
         </p>
       </div>

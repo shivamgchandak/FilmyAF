@@ -21,7 +21,9 @@ export default function MoodTile({ mood, selected = false, onClick }: MoodTilePr
       ].join(' ')}
     >
       <div className={selected ? 'text-[#D6294B]' : 'text-[var(--t3)]'} style={{ transition: 'color 150ms' }}>
-        <Mark />
+        {/* 1.25 on Lucide's 24-box renders ~1.67px at 32, matching the
+            1.5px the tiles carried before. */}
+        <Mark size={32} strokeWidth={1.25} />
       </div>
       <div>
         <p className="mono-label" style={{ color: selected ? '#D6294B' : 'var(--t1)' }}>

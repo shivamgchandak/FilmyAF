@@ -105,13 +105,39 @@ const callAndValidate = async ({
   );
 };
 
-export const runFullPipeline = async ({ situation, mood }) => {
+/**
+ * `onStage` is called after each agent returns, with what that agent produced.
+ * It is how the SSE endpoint gets the title out to the browser roughly 15% into
+ * a ~26s run instead of at the end. It defaults to a no-op, so the plain
+ * non-streaming endpoint keeps working with no change at all.
+ *
+ * A throwing or slow onStage must not be able to kill a generation the user has
+ * already paid for, so every call is isolated.
+ */
+export const runFullPipeline = async ({ situation, mood, onStage }) => {
+  const report = (stage, payload) => {
+    if (typeof onStage !== 'function') return;
+    try {
+      onStage(stage, payload);
+    } catch (e) {
+      console.warn(`[pipeline] onStage(${stage}) threw: ${e.message}`);
+    }
+  };
+
   const directorOut = await callAndValidate({
     ...buildPrompt(directorPrompt({ situation, mood })),
     temperature: 0.4,
     maxTokens: 800,
     validate: validateDirector,
     label: 'Director',
+  });
+
+  // The whole point of streaming: the title exists now, so send it now.
+  report('director', {
+    title: directorOut.title,
+    tagline: directorOut.tagline,
+    numScenes: directorOut.numScenes,
+    characterCount: directorOut.characterCount,
   });
 
   const castingOut = await callAndValidate({
@@ -121,6 +147,8 @@ export const runFullPipeline = async ({ situation, mood }) => {
     validate: (obj) => validateCasting(obj, directorOut.characterCount),
     label: 'Casting',
   });
+
+  report('casting', { characters: castingOut.characters });
 
   const characterNames = castingOut.characters.map((c) => c.name);
   const screenplayOut = await callAndValidate({
@@ -138,6 +166,8 @@ export const runFullPipeline = async ({ situation, mood }) => {
       validateScreenwriter(obj, directorOut.numScenes, characterNames),
     label: 'Screenwriter',
   });
+
+  report('screenwriter', { sceneCount: screenplayOut.scenes.length });
 
   return {
     title: directorOut.title,

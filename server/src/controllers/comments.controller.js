@@ -1,5 +1,6 @@
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { Comment } from '../models/Comment.js';
+import { Script } from '../models/Script.js';
 import { findByIdOrFail } from '../services/scripts.service.js';
 import { ApiError } from '../utils/ApiError.js';
 
@@ -30,6 +31,17 @@ export const deleteComment = asyncHandler(async (req, res) => {
   if (!comment.userId.equals(req.user._id)) {
     throw ApiError.forbidden('Not your comment');
   }
-  await Comment.findOneAndDelete({ _id: comment._id });
-  res.json({ success: true, data: { deleted: true } });
+  /* A reply whose parent is gone is invisible in a threaded view but still
+     counted, so the parent takes its replies with it. deleteMany does not fire
+     the findOneAndDelete hook that normally maintains commentCount, so the
+     decrement is done here with the real number removed - going through the
+     hook once per document would race and miscount. */
+  const { deletedCount } = await Comment.deleteMany({
+    $or: [{ _id: comment._id }, { parentId: comment._id }],
+  });
+  await Script.findByIdAndUpdate(comment.scriptId, {
+    $inc: { commentCount: -(deletedCount || 1) },
+  });
+
+  res.json({ success: true, data: { deleted: true, removed: deletedCount } });
 });

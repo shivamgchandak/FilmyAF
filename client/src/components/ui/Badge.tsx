@@ -4,7 +4,7 @@ import { MOOD_COLORS, MOOD_LABEL, isMoodKey } from '../../lib/moods';
 type BadgeVariant = 'success' | 'warning' | 'danger' | 'neutral';
 
 interface BadgeProps {
-  /** API mood value, e.g. "90s-throwback" — renders the mood's own colours + label */
+  /** API mood value, e.g. "90s-throwback" - renders the mood's own colours + label */
   mood?: string;
   variant?: BadgeVariant;
   children?: ReactNode;

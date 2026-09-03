@@ -100,8 +100,8 @@ export const balanceFor = async (req) => {
 };
 
 /**
- * Spend takes. The debit is a single conditional update — the document only
- * matches while it still holds enough — so two requests racing can never both
+ * Spend takes. The debit is a single conditional update - the document only
+ * matches while it still holds enough - so two requests racing can never both
  * succeed on the last take. Returns the balance left.
  */
 export const debit = async (req, cost, action = 'that') => {

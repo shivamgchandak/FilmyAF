@@ -21,7 +21,7 @@ export function useTakes() {
     accumulates,
     costs: (costs || TAKE_COSTS) as Record<TakeAction, number>,
     cost: (action: TakeAction) => (costs || TAKE_COSTS)[action],
-    /** Unknown balance is treated as affordable — the server is the authority
+    /** Unknown balance is treated as affordable - the server is the authority
      *  and will refuse with OUT_OF_TAKES if it isn't. */
     canAfford: (action: TakeAction) =>
       !known || (balance as number) >= (costs || TAKE_COSTS)[action],

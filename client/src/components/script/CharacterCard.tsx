@@ -37,7 +37,7 @@ export default function CharacterCard({ character, index }: { character: Charact
         <p className="body-sm text-[var(--t2)] leading-relaxed mb-2">{character.description}</p>
         {character.signatureStyle && (
           <div className="flex items-start gap-1.5">
-            <span className="mono-label text-[var(--t3)] flex-shrink-0 pt-px">Tic —</span>
+            <span className="mono-label text-[var(--t3)] flex-shrink-0 pt-px">Tic ·</span>
             <span className="body-sm text-[var(--t3)] italic">{character.signatureStyle}</span>
           </div>
         )}

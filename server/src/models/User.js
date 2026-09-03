@@ -42,14 +42,18 @@ const userSchema = new mongoose.Schema(
     },
     avatarEmoji: {
       type: String,
-      default: '🎬',
+      /* No default. The clapper that used to sit here was the app's own logo
+         standing in for a person, identical on every account. An account with
+         no emoji renders Lucide's User mark client-side; this field is for a
+         choice the user actually makes, once a picker exists. */
+      default: '',
     },
     /* Takes wallet. Accumulates: DAILY_GRANT is added for every calendar day
        since takesGrantedOn, and nothing ever expires. Topped up lazily on
        read by takes.service#grantDailyTakes. */
     takesBalance: {
       type: Number,
-      default: 30, // SIGNUP_GRANT — see services/takes.service.js
+      default: 30, // SIGNUP_GRANT - see services/takes.service.js
       min: 0,
     },
     takesGrantedOn: {

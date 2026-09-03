@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { takesService } from '../../services/takesService.js';
 
-/** Mirrors server/src/services/takes.service.js — kept here so the UI can
+/** Mirrors server/src/services/takes.service.js - kept here so the UI can
  *  price an action before the request is made. */
 export const TAKE_COSTS = {
   generate: 3,

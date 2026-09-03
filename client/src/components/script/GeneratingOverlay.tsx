@@ -2,13 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import PipelineStepper, { PIPELINE, type Step } from '../ui/PipelineStepper';
 
 /**
- * The server runs Director → Casting → Screenwriter as one POST with no
- * progress events, so stage timing here is an ESTIMATE weighted by how long
- * each agent actually takes (token budgets 800 / 1800 / 4000).
+ * Stage progress comes from the server over SSE - `stage` is the index of the
+ * agent currently working, advanced by a real event as each one returns.
  *
- * The estimate never claims completion: the final stage stays "active" until
- * the request truly resolves, however long that takes. Making this exact means
- * streaming stage events from the server — worth doing, see notes.
+ * The weighted timer below is the FALLBACK, used only when no `stage` is
+ * supplied (the non-streaming endpoint). It is an estimate weighted by each
+ * agent's token budget (800 / 1800 / 4000) and it never claims completion -
+ * the last stage stays active until the request actually resolves.
+ *
+ * The production log stays time-driven either way: it is flavour, not status,
+ * and it has more lines than there are agents.
  */
 const STAGE_WEIGHTS = [0.15, 0.35, 0.5];
 const EXPECTED_MS = 26000;
@@ -22,18 +25,25 @@ const LOG_LINES = [
   'Setting the first scene…',
   'Writing dialogue…',
   'Checking nobody quoted a real film…',
-  'Almost there — the screenwriter is slow on purpose…',
+  'Almost there. The screenwriter is slow on purpose…',
 ];
 
 interface Props {
   /** set true the moment the response lands; the stepper snaps to complete */
   finished?: boolean;
+  /** real stage index from the stream; omit to fall back to the timer */
+  stage?: number;
   title?: string;
   tagline?: string;
 }
 
-export default function GeneratingOverlay({ finished = false, title, tagline }: Props) {
-  const [stage, setStage] = useState(0);
+export default function GeneratingOverlay({
+  finished = false,
+  stage: liveStage,
+  title,
+  tagline,
+}: Props) {
+  const [estimatedStage, setEstimatedStage] = useState(0);
   const [logLine, setLogLine] = useState(0);
   const startedAt = useRef(Date.now());
 
@@ -49,11 +59,13 @@ export default function GeneratingOverlay({ finished = false, title, tagline }: 
         if (p < acc) { s = i; break; }
         s = STAGE_WEIGHTS.length - 1;
       }
-      setStage(s);
+      setEstimatedStage(s);
       setLogLine(Math.min(Math.floor(p * LOG_LINES.length), LOG_LINES.length - 1));
     }, 300);
     return () => clearInterval(id);
   }, [finished]);
+
+  const stage = typeof liveStage === 'number' ? liveStage : estimatedStage;
 
   const steps: Step[] = PIPELINE.map((s, i) => ({
     ...s,
@@ -83,9 +95,9 @@ export default function GeneratingOverlay({ finished = false, title, tagline }: 
           <div className="w-8 h-px bg-[#D6294B]" />
         </div>
 
-        <div className="text-center min-h-[110px] flex flex-col justify-center">
+        <div className="text-center min-h-[110px] w-full flex flex-col justify-center">
           <p className="mono-label mb-4" style={{ color: 'rgba(244,241,232,0.3)' }}>FilmyAF presents</p>
-          {finished && title ? (
+          {title ? (
             <>
               <h2
                 className="fade-in-up"
@@ -99,8 +111,12 @@ export default function GeneratingOverlay({ finished = false, title, tagline }: 
               >
                 {title}
               </h2>
+              <div className="w-10 h-px bg-[#D6294B] mx-auto mt-4 fade-in-up" />
               {tagline && (
-                <p className="body-md italic mt-4 fade-in-up" style={{ color: 'rgba(244,241,232,0.6)' }}>
+                <p
+                  className="body-md italic mt-3 fade-in-up px-2"
+                  style={{ color: 'rgba(244,241,232,0.6)' }}
+                >
                   {tagline}
                 </p>
               )}
@@ -119,8 +135,17 @@ export default function GeneratingOverlay({ finished = false, title, tagline }: 
           <div className="flex-1 h-px" style={{ backgroundColor: 'rgba(244,241,232,0.1)' }} />
         </div>
 
+        {/* The horizontal stepper has a hard floor of 3 x 130px columns plus
+            two connectors - about 438px - so on a phone the third agent hangs
+            off the screen. Below sm it runs vertically instead, which is the
+            same component and the same information, just stacked. */}
         <div className="w-full">
-          <PipelineStepper steps={steps} orientation="horizontal" large />
+          <div className="sm:hidden">
+            <PipelineStepper steps={steps} orientation="vertical" />
+          </div>
+          <div className="hidden sm:block">
+            <PipelineStepper steps={steps} orientation="horizontal" large />
+          </div>
         </div>
 
         <div className="w-full border border-[rgba(244,241,232,0.08)] rounded-[2px] p-4" style={{ backgroundColor: 'rgba(244,241,232,0.03)' }}>

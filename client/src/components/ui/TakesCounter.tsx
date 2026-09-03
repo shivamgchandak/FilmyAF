@@ -2,7 +2,7 @@ import Icon from './Icon';
 
 export type TakeStatus = 'healthy' | 'low' | 'empty';
 
-/** Low is "can't afford the main action" — a generation costs 3. */
+/** Low is "can't afford the main action" - a generation costs 3. */
 export const takeStatus = (remaining: number): TakeStatus =>
   remaining <= 0 ? 'empty' : remaining < 3 ? 'low' : 'healthy';
 
@@ -20,7 +20,7 @@ interface Props {
 }
 
 /**
- * The clapper IS the word — "3 🎬" reads faster than "3 takes" and keeps the
+ * The clapper IS the word - "3 🎬" reads faster than "3 takes" and keeps the
  * unit in the product's own voice. The title attribute carries the words for
  * anyone who needs them.
  */

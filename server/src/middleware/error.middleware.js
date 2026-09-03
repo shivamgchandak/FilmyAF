@@ -2,8 +2,8 @@ import mongoose from 'mongoose';
 import { ApiError } from '../utils/ApiError.js';
 
 const themedMessages = {
-  500: 'Our screenwriter has gone for a chai break ☕ — please try again.',
-  503: 'The director is shouting "cut!" — try again in a moment.',
+  500: 'Our screenwriter has gone for a chai break ☕. Please try again.',
+  503: 'The director is shouting "cut!" Try again in a moment.',
 };
 
 export const errorMiddleware = (err, req, res, _next) => {

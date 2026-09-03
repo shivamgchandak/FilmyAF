@@ -3,7 +3,7 @@ import { moodLabel } from '../../lib/moods';
 
 /**
  * Rendered off-screen and captured by html-to-image, so every style must be
- * inline — Tailwind classes and CSS variables do not survive the capture.
+ * inline - Tailwind classes and CSS variables do not survive the capture.
  * 1080x1080 so it lands as a native-resolution square on WhatsApp and X.
  */
 const DramaCard = forwardRef<HTMLDivElement, { script: any }>(function DramaCard({ script }, ref) {

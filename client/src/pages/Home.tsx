@@ -94,15 +94,17 @@ export default function Home() {
 
   return (
     <div style={{ backgroundColor: 'var(--bg)' }}>
-      <title>FilmyAF — Your life, but Bollywood</title>
+      <title>FilmyAF · Your life, but Bollywood</title>
 
       {/* ── Hero ─────────────────────────────────────────── */}
       <section className="grain-surface relative border-b border-[var(--border)]" style={{ backgroundColor: 'var(--surface)' }}>
         <div className="max-w-[1200px] mx-auto px-6 py-16 md:py-24 relative z-[2]">
-          <div className="grid grid-cols-12 gap-10 items-end">
+          {/* gap-x stays 0 until md: a 12-col grid with a 40px gap has a
+              minimum width of 11 x 40 = 440px, which overflows a 377px phone
+              even though every child is col-span-12 there. */}
+          <div className="grid grid-cols-12 gap-y-10 md:gap-x-10 items-end">
             <div className="col-span-12 md:col-span-7 lg:col-span-8">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-px bg-[#D6294B]" />
                 <span className="mono-label text-[#D6294B]">AI screenplay generator</span>
               </div>
 
@@ -115,7 +117,7 @@ export default function Home() {
               </h1>
 
               <p className="body-lg text-[var(--t2)] max-w-[540px] mb-8">
-                Type a mundane situation. Pick a mood. Get back a full Bollywood screenplay —
+                Type a mundane situation. Pick a mood. Get back a full Bollywood screenplay:
                 characters, scenes and dialogue you'll quote on WhatsApp.
               </p>
 
@@ -156,13 +158,13 @@ export default function Home() {
 
       {/* ── Feed ─────────────────────────────────────────── */}
       <section className="max-w-[1200px] mx-auto px-6 py-10">
-        <div className="flex items-center border-b border-[var(--border)] mb-8 overflow-x-auto">
+        <div className="flex items-center border-b border-[var(--border)] mb-8 overflow-x-auto no-scrollbar">
           {TABS.map((t) => (
             <button
               key={t.key}
               onClick={() => dispatch(setActiveTab(t.key))}
               className={[
-                'px-5 py-3 mono-label transition-colors border-b-2 -mb-px whitespace-nowrap',
+                'px-3.5 sm:px-5 py-3 mono-label transition-colors border-b-2 -mb-px whitespace-nowrap shrink-0',
                 activeTab === t.key
                   ? 'text-[#D6294B] border-[#D6294B]'
                   : 'text-[var(--t3)] border-transparent hover:text-[var(--t1)]',
